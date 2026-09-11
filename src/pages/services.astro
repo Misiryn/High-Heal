@@ -1,0 +1,196 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const services = [
+  {
+    category: "Orthopedic & Post-Operative",
+    badge: "Surgical Recovery",
+    title: "Post-Operative Orthopedic Rehabilitation",
+    description: "Structured, criterion-based rehabilitation following ACL reconstruction, rotator cuff repair, meniscus surgery, labral repair, or joint arthroplasty.",
+    highlights: [
+      "Immediate swelling control & sterile scar tissue mobilization",
+      "Full physiological range-of-motion restoration without graft stress",
+      "Progressive eccentric muscle loading & hypertrophy",
+      "Kinetic chain alignment preventing compensatory joint overload"
+    ],
+    timeline: "8 — 24 Weeks (Phase-Gated)",
+    actionReason: "Post-Operative Rehabilitation"
+  },
+  {
+    category: "Sports Medicine",
+    badge: "Motion Capture",
+    title: "Biomechanical 3D Gait & Running Economy Analysis",
+    description: "High-speed multi-angle video recording and pressure plate sensor mapping to isolate kinematic micro-inefficiencies that lead to repetitive stress injuries.",
+    highlights: [
+      "Ground contact time, cadence & stride frequency optimization",
+      "Valgus / varus dynamic knee loading assessment",
+      "Pelvic drop (Trendelenburg) and core stability screening",
+      "Custom footwear, orthotics, and strike pattern recommendations"
+    ],
+    timeline: "2 — 4 Assessment Sessions",
+    actionReason: "Gait & Running Analysis"
+  },
+  {
+    category: "Spine & Posture",
+    badge: "Non-Surgical",
+    title: "Spinal Decompression, Disc Herniation & Sciatica Care",
+    description: "Evidence-based non-surgical protocol for lumbar and cervical disc bulges, nerve root impingement, and severe chronic postural strain.",
+    highlights: [
+      "Maitland and Mulligan manual spinal joint mobilization",
+      "McKenzie directional preference centralization exercises",
+      "Deep transverse abdominis & multifidus spinal stabilizing activation",
+      "Workplace ergonomic modifications and lifting kinematics"
+    ],
+    timeline: "3 — 8 Weeks",
+    actionReason: "Spine & Sciatica Decompression"
+  },
+  {
+    category: "Advanced Modalities",
+    badge: "Certified Therapy",
+    title: "Clinical Dry Needling (CDNT) & Myofascial Release",
+    description: "Insertion of sterile, ultra-fine filament needles into myofascial trigger points to elicit a local twitch response, instantly relieving deep intramuscular tension.",
+    highlights: [
+      "Breaks persistent neuromuscular spasm loops",
+      "Increases microcirculation and delivers localized biochemical healing",
+      "Relieves chronic tension headaches, piriformis syndrome & frozen shoulder",
+      "Executed strictly by internationally certified dry needling practitioners"
+    ],
+    timeline: "2 — 6 Targeted Sessions",
+    actionReason: "Dry Needling Therapy"
+  },
+  {
+    category: "Sports Medicine",
+    badge: "Athletic Conditioning",
+    title: "Heavy Slow Resistance (HSR) & Tendon Loading",
+    description: "Specialized rehabilitation for chronic recalcitrant tendinopathies including Patellar tendonitis (jumper's knee), Achilles tendinopathy, and Tennis elbow.",
+    highlights: [
+      "Stimulates collagen synthesis and tendon matrix remodeling",
+      "Controlled high-load eccentric-to-concentric contractions",
+      "Reduces tendon hyper-vascularization and mechanical pain",
+      "Prepares the kinetic chain for high-velocity stretch-shortening cycles"
+    ],
+    timeline: "6 — 12 Weeks",
+    actionReason: "Tendon Rehabilitation"
+  },
+  {
+    category: "Advanced Modalities",
+    badge: "Rapid Recovery",
+    title: "IASTM & Dynamic Pneumatic Compression",
+    description: "Combination of surgical-grade stainless steel fascial contouring tools with intermittent pneumatic compression boots for accelerated cellular flush.",
+    highlights: [
+      "Breaks restrictive fibrotic adhesions and post-trauma scar tissue",
+      "Accelerates venous return and lymphatic drainage post-match",
+      "Reduces delayed-onset muscle soreness (DOMS) by up to 60%",
+      "Essential for tournament athletes undergoing dense competition schedules"
+    ],
+    timeline: "Immediate Post-Training / As Needed",
+    actionReason: "IASTM & Compression Recovery"
+  }
+];
+---
+
+<Layout activeNav="services" title="Clinical Services & Disciplines | High Heal Sports Medicine">
+  
+  <!-- Header -->
+  <section class="pt-16 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
+    <span class="badge-tech text-xs px-3 py-1 rounded-full font-mono uppercase tracking-wider font-semibold">
+      Comprehensive Clinical Catalog
+    </span>
+    <h1 class="text-4xl sm:text-6xl font-extrabold text-white mt-4 tracking-tight">
+      Evidence-Based Clinical Disciplines
+    </h1>
+    <p class="text-slate-400 text-base max-w-2xl mx-auto mt-4 leading-relaxed">
+      Every treatment is customized based on comprehensive physical assessment, joint kinematics, and objective muscle force testing.
+    </p>
+  </section>
+
+  <!-- Service Cards Grid -->
+  <section class="pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {services.map((svc) => (
+        <div class="glass-panel glass-panel-hover rounded-3xl p-7 border border-white/10 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-[11px] font-mono uppercase text-emerald-400 font-semibold tracking-wider">
+                {svc.category}
+              </span>
+              <span class="badge-tech text-[10px] font-mono px-2 py-0.5 rounded-full font-medium">
+                {svc.badge}
+              </span>
+            </div>
+
+            <h3 class="text-xl font-bold text-white leading-snug">
+              {svc.title}
+            </h3>
+
+            <p class="text-xs text-slate-400 mt-3 leading-relaxed">
+              {svc.description}
+            </p>
+
+            <div class="mt-5 pt-4 border-t border-white/5">
+              <span class="text-[11px] font-mono uppercase text-slate-500 block mb-2 font-semibold">
+                Clinical Components:
+              </span>
+              <ul class="text-xs text-slate-300 space-y-1.5">
+                {svc.highlights.map((point) => (
+                  <li class="flex items-start gap-2">
+                    <span class="text-emerald-400 font-bold">•</span>
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div class="mt-8 pt-4 border-t border-white/10 flex flex-col gap-3">
+            <div class="flex items-center justify-between text-xs font-mono">
+              <span class="text-slate-500">Timeline:</span>
+              <span class="text-white font-semibold">{svc.timeline}</span>
+            </div>
+
+            <a 
+              href={`/contact?reason=${encodeURIComponent(svc.actionReason)}`}
+              class="w-full text-center py-3 rounded-xl bg-slate-900 border border-white/10 text-white font-bold text-xs hover:bg-emerald-500 hover:text-slate-950 transition"
+            >
+              Book Protocol Evaluation →
+            </a>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Clinical Modalities Tech Spec Bar -->
+  <section class="pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="glass-panel rounded-3xl p-8 sm:p-12 border border-white/10 bg-slate-950/70">
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <h2 class="text-2xl sm:text-3xl font-bold text-white">Our In-House Diagnostic Technology</h2>
+        <p class="text-xs text-slate-400 mt-2">State-of-the-art modalities adhering strictly to Australian & British Physiotherapy standards.</p>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+        <div class="p-4 rounded-2xl bg-slate-900/50 border border-white/5">
+          <div class="text-2xl mb-2">📹</div>
+          <h4 class="font-bold text-white text-sm">Motion Capture</h4>
+          <p class="text-[11px] text-slate-400 mt-1">High-fps kinematic video tracking for jump landings and running.</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900/50 border border-white/5">
+          <div class="text-2xl mb-2">⚡</div>
+          <h4 class="font-bold text-white text-sm">Force Dynamometry</h4>
+          <p class="text-[11px] text-slate-400 mt-1">Digital load cells measuring peak torque and limb symmetry indices.</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900/50 border border-white/5">
+          <div class="text-2xl mb-2">🪡</div>
+          <h4 class="font-bold text-white text-sm">Sterile CDNT</h4>
+          <p class="text-[11px] text-slate-400 mt-1">Single-use surgical-grade Seirin needles for painless trigger relief.</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900/50 border border-white/5">
+          <div class="text-2xl mb-2">🩸</div>
+          <h4 class="font-bold text-white text-sm">Pneumatic Flush</h4>
+          <p class="text-[11px] text-slate-400 mt-1">Multi-chamber dynamic air compression for acute lactate clearance.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</Layout>

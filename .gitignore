@@ -1,0 +1,19 @@
+# Build & Dependencies
+node_modules/
+dist/
+.astro/
+
+# Environment variables
+.env
+.env.production
+.env.*
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
