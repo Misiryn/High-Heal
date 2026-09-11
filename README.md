@@ -46,14 +46,16 @@ npm run preview
 
 ## 🔗 Connecting to Your Personal GitHub & Vercel
 
-### Step 1: Create GitHub Repo & Push
-1. Go to [github.com/new](https://github.com/new) and create a new repository named `High-Heal`.
-2. In your terminal inside this folder, run:
-   ```bash
-   git remote add origin https://github.com/<your-username>/High-Heal.git
-   git branch -M main
-   git push -u origin main
-   ```
+### Step 1: GitHub Repository
+The repository is live at:
+**[https://github.com/Misiryn/High-Heal](https://github.com/Misiryn/High-Heal)**
+
+To push future changes:
+```bash
+git add .
+git commit -m "your commit message"
+git push
+```
 
 ### Step 2: Deploy to Vercel (100% Free Tier)
 1. Go to [vercel.com](https://vercel.com) and click **"Add New Project"**.
