@@ -74,20 +74,20 @@ export default function ReturnToPlayTimeline() {
   const activePhase = phases[activeIdx];
 
   return (
-    <div className="glass-panel rounded-3xl p-6 sm:p-10 border border-white/10 shadow-2xl relative overflow-hidden">
+    <div className="glass-panel rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-xl relative overflow-hidden bg-white">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
-          <span className="badge-tech text-xs px-3 py-1 rounded-full font-mono uppercase tracking-wider font-semibold">
+          <span className="badge-medical text-xs px-3 py-1 rounded-full font-mono uppercase tracking-wider font-semibold">
             Clearance Protocol
           </span>
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-white mt-2 tracking-tight">
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 mt-2 tracking-tight">
             The High Heal 4-Phase Return-to-Play Framework
           </h2>
-          <p className="text-sm text-slate-400 mt-1 max-w-2xl">
+          <p className="text-sm text-slate-600 mt-1 max-w-2xl">
             We never clear athletes based on arbitrary calendar dates. Every progression is unlocked strictly through validated biomechanical and functional testing benchmarks.
           </p>
         </div>
-        <div className="text-xs font-mono text-cyan-400 bg-cyan-500/10 px-3.5 py-1.5 rounded-xl border border-cyan-500/20">
+        <div className="text-xs font-mono text-teal-800 bg-teal-50 px-3.5 py-1.5 rounded-xl border border-teal-200 font-semibold">
           IOC / FIFA Medical Guidelines
         </div>
       </div>
@@ -102,47 +102,47 @@ export default function ReturnToPlayTimeline() {
               onClick={() => setActiveIdx(idx)}
               className={`p-4 rounded-2xl text-left transition-all border ${
                 isActive
-                  ? 'bg-emerald-500/15 border-emerald-500/60 shadow-lg shadow-emerald-500/15'
-                  : 'bg-slate-900/60 border-white/5 hover:border-emerald-500/30'
+                  ? 'bg-teal-50/90 border-teal-500 shadow-sm text-teal-950 font-semibold'
+                  : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-teal-300 hover:text-slate-900'
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-emerald-400">{p.phase}</span>
-                <span className="text-[10px] font-mono text-slate-400">{p.duration}</span>
+                <span className={`text-xs font-mono font-bold ${isActive ? 'text-teal-700' : 'text-slate-400'}`}>{p.phase}</span>
+                <span className="text-[10px] font-mono text-slate-500">{p.duration}</span>
               </div>
-              <div className="text-sm font-bold text-white mt-2 leading-tight">{p.badge}</div>
-              <div className="text-[11px] text-slate-400 mt-1 line-clamp-1">{p.title}</div>
+              <div className="text-sm font-bold text-slate-900 mt-2 leading-tight">{p.badge}</div>
+              <div className="text-[11px] text-slate-600 mt-1 line-clamp-1">{p.title}</div>
             </button>
           );
         })}
       </div>
 
       {/* Active Phase Deep Dive */}
-      <div className="bg-slate-950/80 rounded-2xl p-6 sm:p-8 border border-white/10 grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="bg-slate-50/80 rounded-2xl p-6 sm:p-8 border border-slate-200/80 grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-7 space-y-4">
           <div className="flex items-center gap-3">
-            <span className="text-xs font-mono bg-emerald-500 text-slate-950 px-2.5 py-1 rounded-md font-bold">
+            <span className="text-xs font-mono bg-teal-600 text-white px-2.5 py-1 rounded-md font-bold">
               {activePhase.phase}
             </span>
-            <span className="text-xs font-mono text-slate-400 uppercase tracking-wider font-semibold">
+            <span className="text-xs font-mono text-teal-800 uppercase tracking-wider font-semibold">
               {activePhase.badge}
             </span>
           </div>
 
-          <h3 className="text-xl sm:text-2xl font-bold text-white">{activePhase.title}</h3>
+          <h3 className="text-xl sm:text-2xl font-bold text-slate-900">{activePhase.title}</h3>
           
-          <p className="text-xs text-slate-300 leading-relaxed bg-slate-900/50 p-4 rounded-xl border border-white/5">
-            <strong>Clinical Objective:</strong> {activePhase.objective}
+          <p className="text-xs text-slate-700 leading-relaxed bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm">
+            <strong className="text-slate-900">Clinical Objective:</strong> {activePhase.objective}
           </p>
 
           <div className="pt-2">
-            <h4 className="text-xs font-mono uppercase text-emerald-400 tracking-wider font-semibold mb-3">
+            <h4 className="text-xs font-mono uppercase text-teal-800 tracking-wider font-semibold mb-3">
               Must-Pass Clinical Gate Criteria:
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {activePhase.clinicalCriteria.map((crit, cIdx) => (
-                <div key={cIdx} className="bg-slate-900/70 p-3 rounded-xl border border-white/5 flex items-start gap-2.5 text-xs text-slate-200">
-                  <span className="text-emerald-400 font-bold">✓</span>
+                <div key={cIdx} className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-sm flex items-start gap-2.5 text-xs text-slate-700">
+                  <span className="text-teal-600 font-bold">✓</span>
                   <span>{crit}</span>
                 </div>
               ))}
@@ -150,26 +150,26 @@ export default function ReturnToPlayTimeline() {
           </div>
         </div>
 
-        <div className="lg:col-span-5 flex flex-col justify-between bg-slate-900/60 p-6 rounded-2xl border border-white/5 space-y-6">
+        <div className="lg:col-span-5 flex flex-col justify-between bg-teal-50/70 p-6 rounded-2xl border border-teal-200/80 space-y-6">
           <div>
-            <span className="text-[10px] font-mono uppercase text-cyan-400 tracking-wider">
+            <span className="text-[10px] font-mono uppercase text-teal-800 tracking-wider font-semibold">
               Diagnostic Benchmark Test
             </span>
-            <div className="text-sm font-bold text-white mt-1.5 leading-snug">
+            <div className="text-sm font-bold text-slate-900 mt-1.5 leading-snug">
               {activePhase.clearanceTests}
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-            <div className="text-xs font-bold text-emerald-400">Why this matters:</div>
-            <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">
+          <div className="p-4 rounded-xl bg-white border border-teal-200 shadow-sm">
+            <div className="text-xs font-bold text-teal-800">Why this matters:</div>
+            <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">
               Premature return before meeting these benchmarks increases reinjury rates by over 400%. High Heal ensures absolute joint integrity before match play.
             </p>
           </div>
 
           <a
             href="/contact?reason=Sports%20Rehab%20Assessment"
-            className="w-full text-center py-3 rounded-xl bg-white text-slate-950 font-bold text-xs hover:bg-slate-200 transition shadow-lg shadow-white/10"
+            className="w-full text-center py-3 rounded-xl bg-teal-600 text-white font-bold text-xs hover:bg-teal-700 transition shadow-md shadow-teal-600/20"
           >
             Schedule Athletic Evaluation →
           </a>

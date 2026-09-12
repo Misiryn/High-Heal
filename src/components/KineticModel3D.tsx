@@ -10,16 +10,16 @@ interface JointHotspot {
 }
 
 const HOTSPOTS: JointHotspot[] = [
-  { id: 'neck', name: 'Cervical Spine', pos: [0, 2.3, 0], color: 0x06b6d4, condition: 'Tech-Neck & Disc Decompression' },
-  { id: 'shoulder-r', name: 'Right Shoulder', pos: [-1.2, 1.8, 0], color: 0x10b981, condition: 'Rotator Cuff & Impingement' },
-  { id: 'shoulder-l', name: 'Left Shoulder', pos: [1.2, 1.8, 0], color: 0x10b981, condition: 'Throwing Scapular Rhythm' },
-  { id: 'spine', name: 'L4-L5 Lumbar Spine', pos: [0, 0.4, 0], color: 0x34d399, condition: 'Sciatica & Herniation Relief' },
-  { id: 'hip-r', name: 'Right Hip & Groin', pos: [-0.6, -0.2, 0], color: 0x06b6d4, condition: 'Adductor & FAI Stability' },
-  { id: 'hip-l', name: 'Left Hip & Groin', pos: [0.6, -0.2, 0], color: 0x06b6d4, condition: 'Gluteal Kinetic Firing' },
-  { id: 'knee-r', name: 'Right Knee Joint', pos: [-0.7, -1.5, 0.1], color: 0x10b981, condition: 'ACL Reconstruction & Meniscus' },
-  { id: 'knee-l', name: 'Left Knee Joint', pos: [0.7, -1.5, 0.1], color: 0x10b981, condition: 'Patellofemoral Mechanics' },
-  { id: 'ankle-r', name: 'Right Achilles / Ankle', pos: [-0.7, -2.8, 0], color: 0x06b6d4, condition: 'Achilles Tendinopathy Load' },
-  { id: 'ankle-l', name: 'Left Achilles / Ankle', pos: [0.7, -2.8, 0], color: 0x06b6d4, condition: 'Inversion Sprain Stability' },
+  { id: 'neck', name: 'Cervical Spine', pos: [0, 2.3, 0], color: 0x0284c7, condition: 'Tech-Neck & Disc Decompression' },
+  { id: 'shoulder-r', name: 'Right Shoulder', pos: [-1.2, 1.8, 0], color: 0x0d9488, condition: 'Rotator Cuff & Impingement' },
+  { id: 'shoulder-l', name: 'Left Shoulder', pos: [1.2, 1.8, 0], color: 0x0d9488, condition: 'Throwing Scapular Rhythm' },
+  { id: 'spine', name: 'L4-L5 Lumbar Spine', pos: [0, 0.4, 0], color: 0x0f766e, condition: 'Sciatica & Herniation Relief' },
+  { id: 'hip-r', name: 'Right Hip & Groin', pos: [-0.6, -0.2, 0], color: 0x0284c7, condition: 'Adductor & FAI Stability' },
+  { id: 'hip-l', name: 'Left Hip & Groin', pos: [0.6, -0.2, 0], color: 0x0284c7, condition: 'Gluteal Kinetic Firing' },
+  { id: 'knee-r', name: 'Right Knee Joint', pos: [-0.7, -1.5, 0.1], color: 0x0d9488, condition: 'ACL Reconstruction & Meniscus' },
+  { id: 'knee-l', name: 'Left Knee Joint', pos: [0.7, -1.5, 0.1], color: 0x0d9488, condition: 'Patellofemoral Mechanics' },
+  { id: 'ankle-r', name: 'Right Achilles / Ankle', pos: [-0.7, -2.8, 0], color: 0x0284c7, condition: 'Achilles Tendinopathy Load' },
+  { id: 'ankle-l', name: 'Left Achilles / Ankle', pos: [0.7, -2.8, 0], color: 0x0284c7, condition: 'Inversion Sprain Stability' },
 ];
 
 export default function KineticModel3D() {
@@ -54,31 +54,30 @@ export default function KineticModel3D() {
     const bodyGroup = new THREE.Group();
     scene.add(bodyGroup);
 
-    // Materials
+    // Clinical Medical Materials (Sapphire, Medical Teal, Clean Slate)
     const jointMaterial = new THREE.MeshBasicMaterial({
-      color: 0x34d399,
+      color: 0x0f766e,
       wireframe: false,
     });
 
     const boneLineMaterial = new THREE.LineBasicMaterial({
-      color: 0x06b6d4,
+      color: 0x0284c7,
       transparent: true,
-      opacity: 0.55,
+      opacity: 0.7,
       linewidth: 2,
     });
 
     const glowRingMaterial = new THREE.MeshBasicMaterial({
-      color: 0x10b981,
+      color: 0x0d9488,
       transparent: true,
-      opacity: 0.75,
+      opacity: 0.5,
       side: THREE.DoubleSide,
-      blending: THREE.AdditiveBlending,
     });
 
     // Helper: Add Joint Sphere
-    const sphereGeo = new THREE.SphereGeometry(0.08, 16, 16);
+    const sphereGeo = new THREE.SphereGeometry(0.09, 16, 16);
     const headGeo = new THREE.SphereGeometry(0.38, 20, 20);
-    const headMesh = new THREE.Mesh(headGeo, new THREE.MeshBasicMaterial({ color: 0x06b6d4, wireframe: true, transparent: true, opacity: 0.4 }));
+    const headMesh = new THREE.Mesh(headGeo, new THREE.MeshBasicMaterial({ color: 0x0369a1, wireframe: true, transparent: true, opacity: 0.5 }));
     headMesh.position.set(0, 2.9, 0);
     bodyGroup.add(headMesh);
 
@@ -106,7 +105,7 @@ export default function KineticModel3D() {
       wristL: new THREE.Vector3(1.6, -0.1, 0),
     };
 
-    // Add glowing spheres at each joint
+    // Add spheres at each joint
     Object.values(joints).forEach((v) => {
       const mesh = new THREE.Mesh(sphereGeo, jointMaterial);
       mesh.position.copy(v);
@@ -150,7 +149,7 @@ export default function KineticModel3D() {
       bodyGroup.add(line);
     });
 
-    // 4. Kinetic Holographic Force Field Rings
+    // 4. Kinetic Rib Rings
     const ribCageRings: THREE.Mesh[] = [];
     for (let i = 0; i < 4; i++) {
       const r = 0.55 - i * 0.04;
@@ -162,8 +161,8 @@ export default function KineticModel3D() {
       ribCageRings.push(ring);
     }
 
-    // 5. Pulsing Particle Sparks (Kinetic Neural Transmission)
-    const particleCount = 180;
+    // 5. Clinical Particle Cloud
+    const particleCount = 140;
     const particleGeo = new THREE.BufferGeometry();
     const particlePositions = new Float32Array(particleCount * 3);
     for (let i = 0; i < particleCount * 3; i += 3) {
@@ -173,23 +172,22 @@ export default function KineticModel3D() {
     }
     particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
     const particleMat = new THREE.PointsMaterial({
-      color: 0x34d399,
-      size: 0.045,
+      color: 0x0284c7,
+      size: 0.035,
       transparent: true,
-      opacity: 0.65,
-      blending: THREE.AdditiveBlending,
+      opacity: 0.45,
     });
     const particleCloud = new THREE.Points(particleGeo, particleMat);
     bodyGroup.add(particleCloud);
 
-    // 6. Ground Kinetic Grid
-    const grid = new THREE.GridHelper(8, 16, 0x10b981, 0x1e293b);
+    // 6. Clean Medical Ground Grid
+    const grid = new THREE.GridHelper(8, 16, 0x0d9488, 0xcbd5e1);
     grid.position.y = -3.2;
-    grid.material.opacity = 0.25;
+    grid.material.opacity = 0.35;
     grid.material.transparent = true;
     scene.add(grid);
 
-    // 7. Interactive Mouse / Touch Parallax
+    // 7. Interactive Mouse Parallax
     let mouseX = 0;
     let mouseY = 0;
     let targetRotationY = 0;
@@ -211,15 +209,12 @@ export default function KineticModel3D() {
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
       const scrollProgress = Math.min(Math.max(scrollY / (docHeight || 1), 0), 1);
 
-      // Rotate body group progressively as user scrolls
       targetRotationY = scrollProgress * Math.PI * 3;
       targetRotationX = Math.sin(scrollProgress * Math.PI * 2) * 0.25;
 
-      // Adjust camera zoom and target dynamically
       camera.position.z = 7.2 + Math.sin(scrollProgress * Math.PI * 4) * 0.8;
       bodyGroup.position.y = Math.sin(scrollProgress * Math.PI * 2) * 0.3;
 
-      // Update telemetry readouts in real-time
       setTelemetry({
         torque: Math.round(380 + Math.sin(scrollProgress * 10) * 45),
         symmetry: +(94 + Math.cos(scrollProgress * 8) * 3.5).toFixed(1),
@@ -230,7 +225,6 @@ export default function KineticModel3D() {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
 
-    // 9. Resize handler
     const handleResize = () => {
       if (!container) return;
       const newW = container.clientWidth;
@@ -250,28 +244,21 @@ export default function KineticModel3D() {
       animationFrameId = requestAnimationFrame(animate);
       const elapsedTime = clock.getElapsedTime();
 
-      // Smooth damping rotation
       bodyGroup.rotation.y += (targetRotationY + mouseX - bodyGroup.rotation.y) * 0.05;
       bodyGroup.rotation.x += (targetRotationX - mouseY - bodyGroup.rotation.x) * 0.05;
-
-      // Gentle floating animation
       bodyGroup.position.y += Math.sin(elapsedTime * 1.5) * 0.0015;
 
-      // Pulse ribcage rings
       ribCageRings.forEach((ring, idx) => {
         const s = 1 + Math.sin(elapsedTime * 3 + idx) * 0.04;
         ring.scale.set(s, s, s);
       });
 
-      // Slowly rotate particle field
       particleCloud.rotation.y = elapsedTime * 0.08;
-
       renderer.render(scene, camera);
     };
 
     animate();
 
-    // Cleanup on unmount
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('mousemove', handleMouseMove);
@@ -285,19 +272,19 @@ export default function KineticModel3D() {
   }, []);
 
   return (
-    <div className="relative w-full rounded-3xl overflow-hidden glass-panel border border-white/10 shadow-2xl bg-gradient-to-b from-slate-950/90 via-[#050811] to-emerald-950/20">
+    <div className="relative w-full rounded-3xl overflow-hidden bg-gradient-to-b from-white via-slate-50 to-teal-50/40 border border-slate-200/90 shadow-xl">
       
-      {/* 3D Holographic HUD Top Bar */}
+      {/* Clinical Telemetry HUD Top Bar */}
       <div className="absolute top-4 left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-3 pointer-events-none">
-        <div className="flex items-center gap-2 bg-slate-950/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-emerald-500/30 text-[11px] font-mono text-emerald-400 shadow-lg">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-          <span>3D KINETIC SKELETAL HUD • LIVE TELEMETRY</span>
+        <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-teal-200 text-[11px] font-mono text-teal-800 shadow-sm">
+          <span className="w-2 h-2 rounded-full bg-teal-500 animate-ping"></span>
+          <span>CLINICAL KINETIC BIOMECHANICS • LIVE TELEMETRY</span>
         </div>
 
-        <div className="hidden sm:flex items-center gap-4 bg-slate-950/80 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/10 text-[10px] font-mono text-slate-300">
-          <span>TORQUE: <strong className="text-white">{telemetry.torque} N·m</strong></span>
-          <span>LSI SYMMETRY: <strong className="text-emerald-400">{telemetry.symmetry}%</strong></span>
-          <span>VALGUS: <strong className="text-cyan-400">{telemetry.valgus}°</strong></span>
+        <div className="hidden sm:flex items-center gap-4 bg-white/95 backdrop-blur-md px-4 py-1.5 rounded-full border border-slate-200 text-[10px] font-mono text-slate-600 shadow-sm">
+          <span>TORQUE: <strong className="text-slate-900">{telemetry.torque} N·m</strong></span>
+          <span>LSI SYMMETRY: <strong className="text-teal-700">{telemetry.symmetry}%</strong></span>
+          <span>VALGUS: <strong className="text-sky-700">{telemetry.valgus}°</strong></span>
         </div>
       </div>
 
@@ -308,17 +295,17 @@ export default function KineticModel3D() {
         title="Scroll to rotate • Move mouse to tilt in 3D"
       />
 
-      {/* Interactive 3D Hotspot Zone Selector (Bottom Controls) */}
+      {/* Interactive Hotspot Zone Selector (Bottom Controls) */}
       <div className="absolute bottom-4 left-4 right-4 z-20 pointer-events-auto">
-        <div className="bg-slate-950/85 backdrop-blur-xl p-4 sm:p-5 rounded-2xl border border-white/10 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="bg-white/95 backdrop-blur-xl p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="badge-tech text-[10px] font-mono px-2 py-0.5 rounded uppercase">Target Joint Selected</span>
-              <strong className="text-sm font-bold text-white tracking-tight">{activeJoint.name}</strong>
+              <span className="badge-medical text-[10px] font-mono px-2 py-0.5 rounded uppercase">Target Joint Selected</span>
+              <strong className="text-sm font-bold text-slate-900 tracking-tight">{activeJoint.name}</strong>
             </div>
-            <p className="text-xs text-slate-400">
-              {activeJoint.condition} — Monitored under dynamic 3D kinetic capture.
+            <p className="text-xs text-slate-600">
+              {activeJoint.condition} — Evaluated under dynamic clinical kinematic capture.
             </p>
           </div>
 
@@ -330,8 +317,8 @@ export default function KineticModel3D() {
                 onClick={() => setActiveJoint(hotspot)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-mono transition border ${
                   activeJoint.id === hotspot.id
-                    ? 'bg-emerald-500 text-slate-950 font-bold border-emerald-400 shadow-md shadow-emerald-500/30'
-                    : 'bg-slate-900/80 text-slate-300 border-white/5 hover:border-emerald-500/40 hover:text-white'
+                    ? 'bg-teal-600 text-white font-bold border-teal-600 shadow-sm'
+                    : 'bg-slate-100 text-slate-700 border-slate-200 hover:border-teal-500 hover:text-teal-900'
                 }`}
               >
                 {hotspot.name.split(' ')[0]}
@@ -339,7 +326,7 @@ export default function KineticModel3D() {
             ))}
             <a
               href="/services"
-              className="px-3 py-1.5 rounded-xl text-xs font-mono bg-white/10 text-white hover:bg-white/20 transition border border-white/10"
+              className="px-3 py-1.5 rounded-xl text-xs font-mono bg-slate-100 text-slate-800 hover:bg-slate-200 transition border border-slate-200"
             >
               All Protocols →
             </a>
@@ -349,9 +336,9 @@ export default function KineticModel3D() {
       </div>
 
       {/* Floating Scroll Hint Overlay */}
-      <div className="absolute top-1/2 right-4 -translate-y-1/2 hidden lg:flex flex-col items-center gap-2 text-[10px] font-mono text-slate-500 pointer-events-none z-10">
-        <span className="rotate-90 origin-center tracking-widest uppercase">Scroll to Transform</span>
-        <div className="w-0.5 h-12 bg-gradient-to-b from-emerald-400 to-transparent mt-8 animate-pulse"></div>
+      <div className="absolute top-1/2 right-4 -translate-y-1/2 hidden lg:flex flex-col items-center gap-2 text-[10px] font-mono text-slate-400 pointer-events-none z-10">
+        <span className="rotate-90 origin-center tracking-widest uppercase font-semibold">Scroll to Transform</span>
+        <div className="w-0.5 h-12 bg-gradient-to-b from-teal-500 to-transparent mt-8 animate-pulse"></div>
       </div>
 
     </div>

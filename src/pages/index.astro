@@ -12,19 +12,19 @@ import ScrollExperience3D from '../components/ScrollExperience3D.tsx';
     <div class="text-center max-w-4xl mx-auto">
       
       <!-- Top Badge -->
-      <div class="inline-flex items-center gap-2 badge-tech px-4 py-1.5 rounded-full text-xs font-semibold mb-6">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+      <div class="inline-flex items-center gap-2 badge-medical px-4 py-1.5 rounded-full text-xs font-semibold mb-6 shadow-sm">
+        <span class="w-2 h-2 rounded-full bg-teal-600 animate-ping"></span>
         Ahmedabad's Premier Sports Rehabilitation & Biomechanics Centre
       </div>
 
       <!-- Main Heading -->
-      <h1 class="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.1] text-white">
+      <h1 class="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.1] text-slate-900">
         Precision Movement.<br />
-        <span class="text-gradient-neon">Uncompromising Recovery.</span>
+        <span class="text-gradient-teal">Uncompromising Recovery.</span>
       </h1>
 
       <!-- Subtitle -->
-      <p class="mt-6 text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
+      <p class="mt-6 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
         High Heal bridges the critical gap between standard clinical therapy and elite sports conditioning. Founded by leading sports physiotherapists, we treat the biomechanical root cause so you never relapse.
       </p>
 
@@ -32,14 +32,14 @@ import ScrollExperience3D from '../components/ScrollExperience3D.tsx';
       <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
         <a 
           href="/contact" 
-          class="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 font-extrabold text-sm hover:opacity-95 transition shadow-xl shadow-emerald-500/25 flex items-center gap-2.5"
+          class="px-8 py-4 rounded-2xl bg-teal-600 text-white font-extrabold text-sm hover:bg-teal-700 transition shadow-xl shadow-teal-600/25 flex items-center gap-2.5"
         >
           <span>Schedule Clinical Assessment</span>
           <span>→</span>
         </a>
         <a 
           href="#interactive-3d" 
-          class="px-8 py-4 rounded-2xl glass-panel text-slate-200 font-semibold text-sm hover:bg-white/10 transition border border-white/10"
+          class="px-8 py-4 rounded-2xl bg-white text-slate-700 font-semibold text-sm hover:bg-slate-50 transition border border-slate-200 shadow-sm"
         >
           Explore 3D Kinetic Model ↓
         </a>
@@ -47,29 +47,29 @@ import ScrollExperience3D from '../components/ScrollExperience3D.tsx';
 
       <!-- Clinical Performance Metrics -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-14 max-w-4xl mx-auto">
-        <div class="glass-panel rounded-2xl p-5 text-center">
-          <div class="text-3xl sm:text-4xl font-extrabold font-mono text-white">4,800+</div>
-          <div class="text-xs text-slate-400 mt-1 font-medium">Patients Rehabilitated</div>
+        <div class="glass-panel rounded-2xl p-5 text-center bg-white border border-slate-200 shadow-sm">
+          <div class="text-3xl sm:text-4xl font-extrabold font-mono text-slate-900">4,800+</div>
+          <div class="text-xs text-slate-500 mt-1 font-medium">Patients Rehabilitated</div>
         </div>
-        <div class="glass-panel rounded-2xl p-5 text-center">
-          <div class="text-3xl sm:text-4xl font-extrabold font-mono text-emerald-400">96.4%</div>
-          <div class="text-xs text-slate-400 mt-1 font-medium">Return-to-Sport Rate</div>
+        <div class="glass-panel rounded-2xl p-5 text-center bg-white border border-slate-200 shadow-sm">
+          <div class="text-3xl sm:text-4xl font-extrabold font-mono text-teal-700">96.4%</div>
+          <div class="text-xs text-slate-500 mt-1 font-medium">Return-to-Sport Rate</div>
         </div>
-        <div class="glass-panel rounded-2xl p-5 text-center">
-          <div class="text-3xl sm:text-4xl font-extrabold font-mono text-cyan-400">12+ Yrs</div>
-          <div class="text-xs text-slate-400 mt-1 font-medium">Specialized Clinical Practice</div>
+        <div class="glass-panel rounded-2xl p-5 text-center bg-white border border-slate-200 shadow-sm">
+          <div class="text-3xl sm:text-4xl font-extrabold font-mono text-sky-700">12+ Yrs</div>
+          <div class="text-xs text-slate-500 mt-1 font-medium">Specialized Clinical Practice</div>
         </div>
-        <div class="glass-panel rounded-2xl p-5 text-center">
-          <div class="text-3xl sm:text-4xl font-extrabold font-mono text-white">4.9 ★</div>
-          <div class="text-xs text-slate-400 mt-1 font-medium">Verified Google Clinic Rating</div>
+        <div class="glass-panel rounded-2xl p-5 text-center bg-white border border-slate-200 shadow-sm">
+          <div class="text-3xl sm:text-4xl font-extrabold font-mono text-slate-900">4.9 ★</div>
+          <div class="text-xs text-slate-500 mt-1 font-medium">Verified Google Clinic Rating</div>
         </div>
       </div>
 
     </div>
   </section>
 
-  <!-- 3D KINETIC BIOMECHANICAL MODEL (Three.js WebGL with Mouse Parallax & Scroll Transforms) -->
-  <section id="interactive-3d" class="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+  <!-- 3D KINETIC BIOMECHANICAL MODEL -->
+  <section id="interactive-3d" class="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
     <KineticModel3D client:load />
   </section>
 
@@ -78,122 +78,122 @@ import ScrollExperience3D from '../components/ScrollExperience3D.tsx';
     <AnatomyExplorer client:load />
   </section>
 
-  <!-- APPLE-STYLE 3D SCROLL-DRIVEN CLINICAL SEQUENCE -->
-  <section class="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+  <!-- SCROLL-DRIVEN CLINICAL SEQUENCE -->
+  <section class="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
     <ScrollExperience3D client:visible />
   </section>
 
-  <!-- BENTO GRID: THE 4 CLINICAL PILLARS (Apple Style) -->
-  <section class="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+  <!-- BENTO GRID: THE 4 CLINICAL PILLARS (Clean Medical Style) -->
+  <section class="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
     <div class="text-center max-w-3xl mx-auto mb-14">
-      <span class="badge-tech text-xs px-3 py-1 rounded-full font-mono uppercase tracking-wider font-semibold">
+      <span class="badge-medical text-xs px-3 py-1 rounded-full font-mono uppercase tracking-wider font-semibold">
         The High Heal Standard
       </span>
-      <h2 class="text-3xl sm:text-5xl font-extrabold text-white mt-3 tracking-tight">
+      <h2 class="text-3xl sm:text-5xl font-extrabold text-slate-900 mt-3 tracking-tight">
         Why Athletes & Executives Choose High Heal
       </h2>
-      <p class="text-slate-400 text-sm mt-3">
-        Conventional physiotherapy clinics rely on passive hot packs and 10-minute supervised exercises. We deliver active, objective movement science.
+      <p class="text-slate-600 text-sm mt-3">
+        Conventional physiotherapy clinics rely on passive hot packs and unsupervised exercises. We deliver active, objective movement science.
       </p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       
       <!-- Card 1 (Span 2) -->
-      <div class="glass-panel glass-panel-hover rounded-3xl p-8 border border-white/10 md:col-span-2 relative overflow-hidden">
-        <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-xl font-bold mb-6">
+      <div class="glass-panel glass-panel-hover rounded-3xl p-8 border border-slate-200 md:col-span-2 relative overflow-hidden bg-white shadow-sm">
+        <div class="w-12 h-12 rounded-2xl bg-teal-50 border border-teal-200 text-teal-700 flex items-center justify-center text-xl font-bold mb-6">
           📊
         </div>
-        <h3 class="text-2xl font-bold text-white">Objective Biomechanical Data vs. Guesswork</h3>
-        <p class="text-sm text-slate-300 mt-3 max-w-xl leading-relaxed">
+        <h3 class="text-2xl font-bold text-slate-900">Objective Biomechanical Data vs. Guesswork</h3>
+        <p class="text-sm text-slate-600 mt-3 max-w-xl leading-relaxed">
           We quantify joint velocity, angular force discrepancies, and kinetic compensation using motion sensors and high-frame video capture. Your rehabilitation is monitored with measurable, verifiable clinical progression.
         </p>
-        <div class="mt-6 flex flex-wrap gap-4 text-xs font-mono text-emerald-400">
-          <span class="bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20">✓ 3D Motion Gait Capture</span>
-          <span class="bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20">✓ Force Absorption Symmetry</span>
-          <span class="bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20">✓ Electromyographic Activation</span>
+        <div class="mt-6 flex flex-wrap gap-3 text-xs font-mono text-teal-800">
+          <span class="bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-200 font-medium">✓ 3D Motion Gait Capture</span>
+          <span class="bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-200 font-medium">✓ Force Absorption Symmetry</span>
+          <span class="bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-200 font-medium">✓ Electromyographic Activation</span>
         </div>
       </div>
 
       <!-- Card 2 -->
-      <div class="glass-panel glass-panel-hover rounded-3xl p-8 border border-white/10">
-        <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center text-xl font-bold mb-6">
+      <div class="glass-panel glass-panel-hover rounded-3xl p-8 border border-slate-200 bg-white shadow-sm">
+        <div class="w-12 h-12 rounded-2xl bg-sky-50 border border-sky-200 text-sky-700 flex items-center justify-center text-xl font-bold mb-6">
           ⏱️
         </div>
-        <h3 class="text-xl font-bold text-white">Dedicated 1-on-1 Slots</h3>
-        <p class="text-xs text-slate-400 mt-3 leading-relaxed">
+        <h3 class="text-xl font-bold text-slate-900">Dedicated 1-on-1 Slots</h3>
+        <p class="text-xs text-slate-600 mt-3 leading-relaxed">
           Zero double-booked beds or unattended exercises. Every patient receives a full 45 to 60 minute private consultation exclusively with the lead consultant.
         </p>
       </div>
 
       <!-- Card 3 -->
-      <div class="glass-panel glass-panel-hover rounded-3xl p-8 border border-white/10">
-        <div class="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 text-purple-400 flex items-center justify-center text-xl font-bold mb-6">
+      <div class="glass-panel glass-panel-hover rounded-3xl p-8 border border-slate-200 bg-white shadow-sm">
+        <div class="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center justify-center text-xl font-bold mb-6">
           ⚡
         </div>
-        <h3 class="text-xl font-bold text-white">Advanced Invasive Modalities</h3>
-        <p class="text-xs text-slate-400 mt-3 leading-relaxed">
+        <h3 class="text-xl font-bold text-slate-900">Advanced Invasive Modalities</h3>
+        <p class="text-xs text-slate-600 mt-3 leading-relaxed">
           Clinical Dry Needling (CDNT), Instrument-Assisted Soft Tissue Mobilization (IASTM), Radial Shockwave, and Dynamic Pneumatic Recovery Boots.
         </p>
       </div>
 
       <!-- Card 4 (Span 2) -->
-      <div class="glass-panel glass-panel-hover rounded-3xl p-8 border border-white/10 md:col-span-2">
-        <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-xl font-bold mb-6">
+      <div class="glass-panel glass-panel-hover rounded-3xl p-8 border border-slate-200 md:col-span-2 bg-white shadow-sm">
+        <div class="w-12 h-12 rounded-2xl bg-teal-50 border border-teal-200 text-teal-700 flex items-center justify-center text-xl font-bold mb-6">
           🎯
         </div>
-        <h3 class="text-2xl font-bold text-white">The Bridge to Full Athletic Performance</h3>
-        <p class="text-sm text-slate-300 mt-3 max-w-xl leading-relaxed">
+        <h3 class="text-2xl font-bold text-slate-900">The Bridge to Full Athletic Performance</h3>
+        <p class="text-sm text-slate-600 mt-3 max-w-xl leading-relaxed">
           Hospital physiotherapy discharges you the moment you can walk without pain. High Heal continues until you can sprint, cut, decelerate, and jump with 100% psychological confidence.
         </p>
-        <div class="mt-4 flex items-center gap-4 text-xs font-mono text-slate-400">
-          <span class="text-emerald-400">● 96.4% safe return without reinjury within 12 months</span>
+        <div class="mt-4 flex items-center gap-4 text-xs font-mono text-slate-500">
+          <span class="text-teal-700 font-semibold">● 96.4% safe return without reinjury within 12 months</span>
         </div>
       </div>
 
     </div>
   </section>
 
-  <!-- QUICK TESTIMONIAL / CASE RECOVERY HIGHLIGHTS -->
-  <section class="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/5">
+  <!-- PATIENT OUTCOMES HIGHLIGHTS -->
+  <section class="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-slate-200">
     <div class="text-center max-w-2xl mx-auto mb-12">
-      <span class="badge-tech text-xs px-3 py-1 rounded-full font-mono uppercase tracking-wider font-semibold">
+      <span class="badge-medical text-xs px-3 py-1 rounded-full font-mono uppercase tracking-wider font-semibold">
         Clinical Outcomes
       </span>
-      <h2 class="text-3xl font-extrabold text-white mt-3">From Acute Trauma to Field Dominance</h2>
+      <h2 class="text-3xl font-extrabold text-slate-900 mt-3">From Acute Trauma to Field Dominance</h2>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       
-      <div class="glass-panel rounded-2xl p-6 border border-white/10 space-y-3">
-        <div class="flex items-center gap-1 text-emerald-400 text-sm">★★★★★</div>
-        <h4 class="text-base font-bold text-white">"Back to Marathon Running in 7 Weeks"</h4>
-        <p class="text-xs text-slate-400 leading-relaxed">
+      <div class="glass-panel rounded-2xl p-6 border border-slate-200 bg-white shadow-sm space-y-3">
+        <div class="flex items-center gap-1 text-teal-600 text-sm">★★★★★</div>
+        <h4 class="text-base font-bold text-slate-900">"Back to Marathon Running in 7 Weeks"</h4>
+        <p class="text-xs text-slate-600 leading-relaxed">
           "I had chronic IT band friction and sharp knee pain whenever I hit 5K. Dr. spotted a severe hip drop in my video gait test that two previous clinics missed. The targeted gluteal loading cleared my pain completely."
         </p>
-        <div class="pt-2 text-[11px] font-mono text-slate-300">
+        <div class="pt-2 text-[11px] font-mono text-slate-500 font-medium">
           — Vikram P., Endurance Runner, Ahmedabad
         </div>
       </div>
 
-      <div class="glass-panel rounded-2xl p-6 border border-white/10 space-y-3">
-        <div class="flex items-center gap-1 text-emerald-400 text-sm">★★★★★</div>
-        <h4 class="text-base font-bold text-white">"Avoided Lumbar Surgery for L4-L5 Disc"</h4>
-        <p class="text-xs text-slate-400 leading-relaxed">
+      <div class="glass-panel rounded-2xl p-6 border border-slate-200 bg-white shadow-sm space-y-3">
+        <div class="flex items-center gap-1 text-teal-600 text-sm">★★★★★</div>
+        <h4 class="text-base font-bold text-slate-900">"Avoided Lumbar Surgery for L4-L5 Disc"</h4>
+        <p class="text-xs text-slate-600 leading-relaxed">
           "As an IT director sitting 12 hours a day, sciatica had made even walking unbearable. High Heal’s spinal decompression protocols and core retraining took my pain from an 8/10 to zero."
         </p>
-        <div class="pt-2 text-[11px] font-mono text-slate-300">
+        <div class="pt-2 text-[11px] font-mono text-slate-500 font-medium">
           — Rajesh S., VP Engineering, Tech Sector
         </div>
       </div>
 
-      <div class="glass-panel rounded-2xl p-6 border border-white/10 space-y-3">
-        <div class="flex items-center gap-1 text-emerald-400 text-sm">★★★★★</div>
-        <h4 class="text-base font-bold text-white">"Cricket Fast Bowler Shoulder Relief"</h4>
-        <p class="text-xs text-slate-400 leading-relaxed">
+      <div class="glass-panel rounded-2xl p-6 border border-slate-200 bg-white shadow-sm space-y-3">
+        <div class="flex items-center gap-1 text-teal-600 text-sm">★★★★★</div>
+        <h4 class="text-base font-bold text-slate-900">"Cricket Fast Bowler Shoulder Relief"</h4>
+        <p class="text-xs text-slate-600 leading-relaxed">
           "Suffered a labral impingement that ruined my bowling action. The combination of dry needling, rotator cuff eccentric loading, and kinetic chain drills gave me back 100% throwing velocity."
         </p>
-        <div class="pt-2 text-[11px] font-mono text-slate-300">
+        <div class="pt-2 text-[11px] font-mono text-slate-500 font-medium">
           — Manan D., District Fast Bowler
         </div>
       </div>
@@ -202,18 +202,18 @@ import ScrollExperience3D from '../components/ScrollExperience3D.tsx';
   </section>
 
   <!-- BOTTOM CTA BANNER -->
-  <section class="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-    <div class="glass-panel rounded-3xl p-8 sm:p-14 border border-emerald-500/30 text-center relative overflow-hidden bg-gradient-to-b from-slate-900/90 to-emerald-950/20">
-      <h2 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+  <section class="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="rounded-3xl p-8 sm:p-14 text-center relative overflow-hidden bg-gradient-to-br from-teal-900 via-slate-900 to-slate-950 text-white shadow-2xl">
+      <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight">
         Ready to Eliminate Pain at Its Biomechanical Root?
       </h2>
-      <p class="mt-4 text-sm sm:text-base text-slate-300 max-w-xl mx-auto">
+      <p class="mt-4 text-sm sm:text-base text-slate-300 max-w-xl mx-auto leading-relaxed">
         Book your dedicated 60-minute initial diagnostic session. Same-day emergency trauma and acute spinal flare-up slots available.
       </p>
       <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
         <a 
           href="/contact" 
-          class="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 font-extrabold text-sm hover:opacity-95 transition shadow-xl shadow-emerald-500/25"
+          class="px-8 py-4 rounded-2xl bg-teal-500 text-white font-extrabold text-sm hover:bg-teal-400 transition shadow-xl shadow-teal-500/25"
         >
           Book Your Appointment →
         </a>
@@ -221,7 +221,7 @@ import ScrollExperience3D from '../components/ScrollExperience3D.tsx';
           href="https://wa.me/919876543210?text=Hi%20High%20Heal%2C%20I%20would%20like%20to%20consult%20regarding%20an%20injury." 
           target="_blank" 
           rel="noopener noreferrer"
-          class="px-6 py-4 rounded-2xl glass-panel text-white font-semibold text-sm hover:bg-white/10 transition border border-white/15"
+          class="px-6 py-4 rounded-2xl bg-white/10 text-white font-semibold text-sm hover:bg-white/20 transition border border-white/20"
         >
           Chat on WhatsApp 💬
         </a>

@@ -123,24 +123,24 @@ export default function AnatomyExplorer() {
   const activeCondition = conditions[selectedKey];
 
   return (
-    <div className="glass-panel rounded-3xl p-6 sm:p-10 border border-white/10 relative overflow-hidden shadow-2xl">
-      {/* Background Accent */}
-      <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="glass-panel rounded-3xl p-6 sm:p-10 border border-slate-200 relative overflow-hidden shadow-xl bg-white">
+      {/* Background Subtle Accent */}
+      <div className="absolute top-0 right-0 w-80 h-80 bg-teal-500/5 rounded-full blur-3xl pointer-events-none" />
 
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 relative z-10">
         <div>
-          <span className="badge-tech text-xs px-3 py-1 rounded-full font-mono uppercase tracking-wider font-semibold">
+          <span className="badge-medical text-xs px-3 py-1 rounded-full font-mono uppercase tracking-wider font-semibold">
             Interactive Diagnostic Navigator
           </span>
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-white mt-2 tracking-tight">
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 mt-2 tracking-tight">
             Targeted Anatomical Pathologies
           </h2>
-          <p className="text-sm text-slate-400 mt-1 max-w-xl">
+          <p className="text-sm text-slate-600 mt-1 max-w-xl">
             Select a target zone to explore our evidence-based clinical protocols, typical diagnostic signs, and recovery milestones.
           </p>
         </div>
-        <div className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-3.5 py-1.5 rounded-xl border border-emerald-500/20">
+        <div className="text-xs font-mono text-teal-800 bg-teal-50 px-3.5 py-1.5 rounded-xl border border-teal-200 font-semibold">
           6 Clinical Zones Active
         </div>
       </div>
@@ -155,13 +155,13 @@ export default function AnatomyExplorer() {
               onClick={() => setSelectedKey(item.id)}
               className={`py-3 px-3 rounded-2xl text-left transition-all duration-200 border flex flex-col justify-between ${
                 isSelected
-                  ? 'bg-emerald-500/15 border-emerald-500/50 shadow-lg shadow-emerald-500/15'
-                  : 'bg-slate-900/60 border-white/5 hover:border-emerald-500/30 text-slate-300'
+                  ? 'bg-teal-50/90 border-teal-500 shadow-sm text-teal-950 font-semibold'
+                  : 'bg-slate-50 border-slate-200 hover:border-teal-300 text-slate-700'
               }`}
             >
               <div className="text-2xl mb-1">{item.emoji}</div>
-              <div className="text-xs font-bold text-white tracking-tight">{item.name}</div>
-              <div className="text-[10px] text-emerald-400 font-mono mt-0.5">
+              <div className="text-xs font-bold text-slate-900 tracking-tight">{item.name}</div>
+              <div className="text-[10px] text-teal-700 font-mono mt-0.5 font-medium">
                 {isSelected ? '● Active' : 'Inspect →'}
               </div>
             </button>
@@ -170,19 +170,19 @@ export default function AnatomyExplorer() {
       </div>
 
       {/* Detail Diagnostic Card */}
-      <div className="bg-slate-950/80 rounded-2xl p-6 sm:p-8 border border-white/10 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
+      <div className="bg-slate-50/80 rounded-2xl p-6 sm:p-8 border border-slate-200/80 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         {/* Left Column: Condition Overview */}
         <div className="lg:col-span-4 space-y-4">
-          <div className="inline-flex items-center gap-2 text-xs font-mono uppercase text-emerald-400 font-semibold">
+          <div className="inline-flex items-center gap-2 text-xs font-mono uppercase text-teal-700 font-semibold">
             <span>Zone:</span>
-            <span className="text-white">{activeCondition.name}</span>
+            <span className="text-slate-900 font-bold">{activeCondition.name}</span>
           </div>
           
-          <h3 className="text-xl sm:text-2xl font-bold text-white leading-snug">
+          <h3 className="text-xl sm:text-2xl font-bold text-slate-900 leading-snug">
             {activeCondition.title}
           </h3>
 
-          <p className="text-xs text-slate-400 leading-relaxed">
+          <p className="text-xs text-slate-600 leading-relaxed">
             {activeCondition.description}
           </p>
 
@@ -190,10 +190,10 @@ export default function AnatomyExplorer() {
             <span className="text-[11px] font-mono uppercase text-slate-500 block mb-2 font-semibold">
               Typical Clinical Presentation:
             </span>
-            <ul className="text-xs text-slate-300 space-y-1.5">
+            <ul className="text-xs text-slate-700 space-y-1.5">
               {activeCondition.symptoms.map((symptom, idx) => (
                 <li key={idx} className="flex items-start gap-2">
-                  <span className="text-emerald-400 font-bold">•</span>
+                  <span className="text-teal-600 font-bold">•</span>
                   <span>{symptom}</span>
                 </li>
               ))}
@@ -203,48 +203,48 @@ export default function AnatomyExplorer() {
 
         {/* Middle Column: Clinical Protocols */}
         <div className="lg:col-span-5 space-y-4">
-          <span className="text-[11px] font-mono uppercase text-cyan-400 block font-semibold tracking-wider">
+          <span className="text-[11px] font-mono uppercase text-teal-800 block font-semibold tracking-wider">
             Evidence-Based Rehabilitation Protocol
           </span>
 
           <div className="space-y-2.5">
             {activeCondition.protocols.map((proto, idx) => (
-              <div key={idx} className="bg-slate-900/60 p-3 rounded-xl border border-white/5 flex items-start gap-3">
-                <div className="w-5 h-5 rounded-md bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-mono text-[11px] font-bold shrink-0 mt-0.5">
+              <div key={idx} className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-sm flex items-start gap-3">
+                <div className="w-5 h-5 rounded-md bg-teal-50 text-teal-700 border border-teal-200 flex items-center justify-center font-mono text-[11px] font-bold shrink-0 mt-0.5">
                   {idx + 1}
                 </div>
-                <p className="text-xs text-slate-200 leading-relaxed">{proto}</p>
+                <p className="text-xs text-slate-700 leading-relaxed">{proto}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* Right Column: Metrics & CTA */}
-        <div className="lg:col-span-3 flex flex-col justify-between bg-emerald-950/20 border border-emerald-500/20 rounded-2xl p-5 space-y-6">
+        <div className="lg:col-span-3 flex flex-col justify-between bg-teal-50/80 border border-teal-200/80 rounded-2xl p-5 space-y-6">
           <div>
-            <span className="text-[10px] font-mono uppercase text-emerald-400 tracking-wider">
+            <span className="text-[10px] font-mono uppercase text-teal-800 tracking-wider font-semibold">
               Expected Recovery Arc
             </span>
-            <div className="text-2xl sm:text-3xl font-extrabold text-white font-mono mt-1">
+            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-mono mt-1">
               {activeCondition.timeline}
             </div>
-            <p className="text-[11px] text-slate-400 mt-1 leading-normal">
+            <p className="text-[11px] text-slate-600 mt-1 leading-normal">
               Based on adherence to 2–3 guided clinical sessions weekly.
             </p>
           </div>
 
-          <div className="border-t border-emerald-500/20 pt-4">
-            <span className="text-[10px] font-mono uppercase text-cyan-400 tracking-wider">
+          <div className="border-t border-teal-200 pt-4">
+            <span className="text-[10px] font-mono uppercase text-teal-800 tracking-wider font-semibold">
               Clearance Benchmark
             </span>
-            <div className="text-xs font-bold text-white mt-1">
+            <div className="text-xs font-bold text-slate-900 mt-1">
               {activeCondition.testBenchmark}
             </div>
           </div>
 
           <a
             href={`/contact?reason=${encodeURIComponent(activeCondition.name)}`}
-            className="w-full text-center py-3 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 font-bold text-xs hover:opacity-95 transition shadow-lg shadow-emerald-500/20"
+            className="w-full text-center py-3 rounded-xl bg-teal-600 text-white font-bold text-xs hover:bg-teal-700 transition shadow-md shadow-teal-600/20"
           >
             Book {activeCondition.name} Consult →
           </a>

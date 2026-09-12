@@ -32,9 +32,6 @@ export default function BookingForm() {
     setErrorMessage('');
 
     try {
-      // Configuration for Email / SMTP Service
-      // Works with Web3Forms (Free 250 emails/mo) or Formspree or custom SMTP endpoint
-      // Users can set their key via PUBLIC_WEB3FORMS_KEY or default fallback
       const web3FormsKey = (import.meta as any).env?.PUBLIC_WEB3FORMS_KEY || 'YOUR_ACCESS_KEY_HERE';
 
       const payload = {
@@ -63,9 +60,7 @@ export default function BookingForm() {
       if (response.ok && result.success) {
         setStatus('success');
       } else {
-        // If the key is not yet configured, provide a graceful fallback
         if (web3FormsKey === 'YOUR_ACCESS_KEY_HERE') {
-          // Demo fallback: simulate successful intake and prompt WhatsApp
           console.info('Form submitted (Demo mode: Add your Web3Forms/SMTP access key in .env to receive live inbox emails).', payload);
           setStatus('success');
         } else {
@@ -75,7 +70,6 @@ export default function BookingForm() {
       }
     } catch (err: any) {
       console.warn('Network submission error:', err);
-      // Fallback gracefully so patient is never blocked
       setStatus('success');
     }
   };
@@ -86,42 +80,42 @@ export default function BookingForm() {
   };
 
   return (
-    <div className="glass-panel rounded-3xl p-6 sm:p-10 border border-white/10 shadow-2xl relative">
+    <div className="glass-panel rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-xl relative bg-white">
       <div className="mb-6">
         <div className="flex items-center justify-between">
-          <span className="badge-tech text-xs px-3 py-1 rounded-full font-mono uppercase tracking-wider font-semibold">
+          <span className="badge-medical text-xs px-3 py-1 rounded-full font-mono uppercase tracking-wider font-semibold">
             Direct Patient Intake
           </span>
-          <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+          <span className="text-[10px] font-mono text-teal-800 bg-teal-50 px-2.5 py-1 rounded-lg border border-teal-200 font-semibold">
             Email & WhatsApp Enabled
           </span>
         </div>
-        <h3 className="text-2xl font-bold text-white mt-2">
+        <h3 className="text-2xl font-bold text-slate-900 mt-2">
           Schedule Clinical Evaluation
         </h3>
-        <p className="text-xs text-slate-400 mt-1">
+        <p className="text-xs text-slate-600 mt-1">
           Every consultation is a dedicated 45–60 minute comprehensive 1-on-1 assessment with our sports physio specialist.
         </p>
       </div>
 
       {status === 'success' ? (
-        <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-6 text-center space-y-4">
-          <div className="w-12 h-12 rounded-full bg-emerald-500 text-slate-950 mx-auto flex items-center justify-center font-bold text-xl">
+        <div className="bg-teal-50 border border-teal-200 rounded-2xl p-6 text-center space-y-4">
+          <div className="w-12 h-12 rounded-full bg-teal-600 text-white mx-auto flex items-center justify-center font-bold text-xl shadow-sm">
             ✓
           </div>
           <div>
-            <h4 className="text-lg font-bold text-white">Consultation Request Received!</h4>
-            <p className="text-xs text-slate-300 max-w-md mx-auto mt-1 leading-relaxed">
+            <h4 className="text-lg font-bold text-slate-900">Consultation Request Received!</h4>
+            <p className="text-xs text-slate-600 max-w-md mx-auto mt-1 leading-relaxed">
               Your intake information has been sent to our clinical team's email. We will reach out within 2 hours to confirm your appointment.
             </p>
           </div>
 
-          <div className="pt-2 border-t border-emerald-500/20 flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="pt-2 border-t border-teal-200 flex flex-col sm:flex-row gap-3 justify-center">
             <a
               href={getWhatsAppUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="py-3 px-5 rounded-xl bg-emerald-400 text-slate-950 font-bold text-xs hover:bg-emerald-300 transition flex items-center justify-center gap-2"
+              className="py-3 px-5 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-500 transition flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20"
             >
               <span>Confirm Instantly on WhatsApp</span>
               <span>💬 →</span>
@@ -134,7 +128,7 @@ export default function BookingForm() {
                 setEmail('');
                 setNotes('');
               }}
-              className="py-3 px-5 rounded-xl glass-panel text-slate-300 hover:text-white text-xs font-semibold"
+              className="py-3 px-5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:text-slate-900 text-xs font-semibold shadow-sm"
             >
               Book Another Patient
             </button>
@@ -144,14 +138,14 @@ export default function BookingForm() {
         <form onSubmit={handleFormSubmit} className="space-y-4">
           
           {status === 'error' && (
-            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-xs text-red-300">
+            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700">
               {errorMessage}
             </div>
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[11px] font-mono uppercase text-slate-400 mb-1">
+              <label className="block text-[11px] font-mono uppercase text-slate-600 mb-1 font-medium">
                 Full Name *
               </label>
               <input
@@ -160,11 +154,11 @@ export default function BookingForm() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Rahul Sharma"
-                className="w-full bg-slate-900/80 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-400"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-teal-500 focus:bg-white transition"
               />
             </div>
             <div>
-              <label className="block text-[11px] font-mono uppercase text-slate-400 mb-1">
+              <label className="block text-[11px] font-mono uppercase text-slate-600 mb-1 font-medium">
                 Phone / WhatsApp Number *
               </label>
               <input
@@ -173,13 +167,13 @@ export default function BookingForm() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+91 98765 XXXXX"
-                className="w-full bg-slate-900/80 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-400"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-teal-500 focus:bg-white transition"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-[11px] font-mono uppercase text-slate-400 mb-1">
+            <label className="block text-[11px] font-mono uppercase text-slate-600 mb-1 font-medium">
               Email Address (For Clinical Receipt & Confirmation) *
             </label>
             <input
@@ -188,18 +182,18 @@ export default function BookingForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="rahul@example.com"
-              className="w-full bg-slate-900/80 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-400"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-teal-500 focus:bg-white transition"
             />
           </div>
 
           <div>
-            <label className="block text-[11px] font-mono uppercase text-slate-400 mb-1">
+            <label className="block text-[11px] font-mono uppercase text-slate-600 mb-1 font-medium">
               Primary Medical / Physical Complaint *
             </label>
             <select
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              className="w-full bg-slate-900/80 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-emerald-400"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-900 focus:outline-none focus:border-teal-500 focus:bg-white transition"
             >
               <option value="Sports Injury (ACL, Meniscus, Strain)">Sports Injury (ACL, Meniscus, Ligament, Muscle Strain)</option>
               <option value="Lumbar Spine & Sciatica Decompression">Lumbar Spine & Sciatica Decompression</option>
@@ -213,7 +207,7 @@ export default function BookingForm() {
           </div>
 
           <div>
-            <label className="block text-[11px] font-mono uppercase text-slate-400 mb-1">
+            <label className="block text-[11px] font-mono uppercase text-slate-600 mb-1 font-medium">
               Preferred Consultation Timing
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -226,8 +220,8 @@ export default function BookingForm() {
                   key={slot}
                   className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs cursor-pointer transition ${
                     timing === slot
-                      ? 'bg-emerald-500/15 border-emerald-500/50 text-white font-medium'
-                      : 'bg-slate-900/60 border-white/5 text-slate-400 hover:text-white'
+                      ? 'bg-teal-50 border-teal-500 text-teal-900 font-semibold shadow-sm'
+                      : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-teal-300'
                   }`}
                 >
                   <input
@@ -235,7 +229,7 @@ export default function BookingForm() {
                     name="timingSlot"
                     checked={timing === slot}
                     onChange={() => setTiming(slot)}
-                    className="accent-emerald-400"
+                    className="accent-teal-600"
                   />
                   <span>{slot.split(' ')[0]}</span>
                 </label>
@@ -244,7 +238,7 @@ export default function BookingForm() {
           </div>
 
           <div>
-            <label className="block text-[11px] font-mono uppercase text-slate-400 mb-1">
+            <label className="block text-[11px] font-mono uppercase text-slate-600 mb-1 font-medium">
               Brief Symptoms / Prior Scans (Optional)
             </label>
             <textarea
@@ -252,7 +246,7 @@ export default function BookingForm() {
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g. Right knee popped while playing badminton 3 days ago. MRI showed Grade 2 ACL sprain..."
-              className="w-full bg-slate-900/80 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-400"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-teal-500 focus:bg-white transition"
             />
           </div>
 
@@ -260,11 +254,11 @@ export default function BookingForm() {
             <button
               type="submit"
               disabled={status === 'loading'}
-              className="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 font-extrabold text-xs hover:opacity-95 transition shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="flex-1 py-3.5 rounded-xl bg-teal-600 text-white font-extrabold text-xs hover:bg-teal-700 transition shadow-md shadow-teal-600/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {status === 'loading' ? (
                 <>
-                  <span className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
                   <span>Transmitting to Clinic...</span>
                 </>
               ) : (
@@ -279,7 +273,7 @@ export default function BookingForm() {
               href={getWhatsAppUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="py-3.5 px-4 rounded-xl bg-slate-900 border border-emerald-500/40 text-emerald-400 font-bold text-xs hover:bg-emerald-500/10 transition flex items-center justify-center gap-2 whitespace-nowrap"
+              className="py-3.5 px-4 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 font-bold text-xs hover:bg-emerald-100 transition flex items-center justify-center gap-2 whitespace-nowrap"
             >
               <span>WhatsApp Direct</span>
               <span>💬</span>
