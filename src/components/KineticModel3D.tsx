@@ -25,8 +25,8 @@ const HOTSPOTS: JointHotspot[] = [
     id: 'overview',
     label: 'Full Body',
     name: 'Full Kinetic Biomechanical Chain',
-    pos: [0, -0.1, 0],
-    camPos: [0, -0.1, 10.4],
+    pos: [0, 0, 0],
+    camPos: [0, 0, 10.4],
     condition: 'Global Musculoskeletal Kinetic Alignment & Force Distribution',
     metrics: {
       m1Label: 'GLOBAL TORQUE',
@@ -150,16 +150,17 @@ export default function KineticModel3D() {
     if (!container) return;
 
     const width = container.clientWidth;
-    const height = container.clientHeight || 560;
+    const isMobileInitial = width < 768;
+    const height = container.clientHeight || (isMobileInitial ? 380 : 580);
 
-    const getOverviewDist = (w: number) => (w < 640 ? 11.8 : 10.4);
+    const getOverviewDist = (w: number) => (w < 768 ? 8.8 : 10.4);
 
     // 1. Scene & Camera with safe initial overview framing
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
     const initialZ = getOverviewDist(width);
-    camera.position.set(0, -0.1, initialZ);
-    camera.lookAt(0, -0.1, 0);
+    camera.position.set(0, 0.0, initialZ);
+    camera.lookAt(0, 0.0, 0);
 
     // 2. WebGL Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
@@ -190,7 +191,7 @@ export default function KineticModel3D() {
       side: THREE.DoubleSide,
     });
 
-    // Helper: Add Joint Sphere
+    // Joint Spheres & Head Mesh
     const sphereGeo = new THREE.SphereGeometry(0.09, 16, 16);
     const headGeo = new THREE.SphereGeometry(0.38, 20, 20);
     const headMesh = new THREE.Mesh(headGeo, new THREE.MeshBasicMaterial({ color: 0x0369a1, wireframe: true, transparent: true, opacity: 0.5 }));
@@ -221,7 +222,6 @@ export default function KineticModel3D() {
       wristL: new THREE.Vector3(1.6, -0.1, 0),
     };
 
-    // Add spheres at each joint
     Object.values(joints).forEach((v) => {
       const mesh = new THREE.Mesh(sphereGeo, jointMaterial);
       mesh.position.copy(v);
@@ -328,9 +328,9 @@ export default function KineticModel3D() {
     bodyGroup.add(reticleGroup);
     reticleGroup.visible = false;
 
-    // 5. Invisible Hit Spheres for Direct 3D Raycast Clicking on Joints
+    // 5. Generous Hit Spheres for Direct 3D Clicking / Tapping on Joints
     const hitSpheres: THREE.Mesh[] = [];
-    const hitGeo = new THREE.SphereGeometry(0.32, 12, 12);
+    const hitGeo = new THREE.SphereGeometry(0.38, 12, 12);
     const hitMat = new THREE.MeshBasicMaterial({ visible: false });
 
     HOTSPOTS.filter((h) => h.id !== 'overview').forEach((h) => {
@@ -341,62 +341,140 @@ export default function KineticModel3D() {
       hitSpheres.push(hitMesh);
     });
 
-    // 6. Interactive Mouse & Scroll
+    // 6. Interactive Click-and-Drag Rotation & Touch Controls
+    let isPointerDown = false;
+    let pointerStartX = 0;
+    let pointerStartY = 0;
+    let totalMoved = 0;
+
+    let userRotY = 0;
+    let userRotX = 0;
+    let targetUserRotY = 0;
+    let targetUserRotX = 0;
+
     let mouseX = 0;
     let mouseY = 0;
-    let targetRotationY = 0;
-    let targetRotationX = 0;
+    let scrollRotY = 0;
+    let scrollRotX = 0;
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = container.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width - 0.5;
-      const y = (e.clientY - rect.top) / rect.height - 0.5;
-      mouseX = x * 1.5;
-      mouseY = y * 0.8;
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-
-    // Direct Raycast Click on 3D Joints
     const raycaster = new THREE.Raycaster();
     const mouseVec = new THREE.Vector2();
 
-    const handleCanvasClick = (e: MouseEvent) => {
+    const checkRaycastHit = (clientX: number, clientY: number) => {
       const rect = container.getBoundingClientRect();
-      mouseVec.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      mouseVec.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      mouseVec.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+      mouseVec.y = -((clientY - rect.top) / rect.height) * 2 + 1;
       raycaster.setFromCamera(mouseVec, camera);
-
       const intersects = raycaster.intersectObjects(hitSpheres);
       if (intersects.length > 0) {
         const hitId = intersects[0].object.userData.hotspotId;
         const target = HOTSPOTS.find((h) => h.id === hitId);
         if (target) {
           selectJoint(target);
+          return true;
         }
+      }
+      return false;
+    };
+
+    // Mouse handlers
+    const handleMouseDown = (e: MouseEvent) => {
+      isPointerDown = true;
+      pointerStartX = e.clientX;
+      pointerStartY = e.clientY;
+      totalMoved = 0;
+      container.style.cursor = 'grabbing';
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = container.getBoundingClientRect();
+      const nx = (e.clientX - rect.left) / rect.width - 0.5;
+      const ny = (e.clientY - rect.top) / rect.height - 0.5;
+      mouseX = nx * 0.6;
+      mouseY = ny * 0.4;
+
+      if (!isPointerDown) {
+        mouseVec.x = nx * 2;
+        mouseVec.y = -ny * 2;
+        raycaster.setFromCamera(mouseVec, camera);
+        const intersects = raycaster.intersectObjects(hitSpheres);
+        container.style.cursor = intersects.length > 0 ? 'pointer' : 'grab';
+        return;
+      }
+
+      const dx = e.clientX - pointerStartX;
+      const dy = e.clientY - pointerStartY;
+      totalMoved += Math.abs(dx) + Math.abs(dy);
+      pointerStartX = e.clientX;
+      pointerStartY = e.clientY;
+
+      targetUserRotY += dx * 0.01;
+      targetUserRotX = Math.max(-0.6, Math.min(0.6, targetUserRotX + dy * 0.008));
+    };
+
+    const handleMouseUp = (e: MouseEvent) => {
+      if (!isPointerDown) return;
+      isPointerDown = false;
+      container.style.cursor = 'grab';
+
+      // Tap / Click without drag triggers joint selection
+      if (totalMoved < 6) {
+        checkRaycastHit(e.clientX, e.clientY);
       }
     };
 
-    const handleCanvasPointerMove = (e: MouseEvent) => {
-      const rect = container.getBoundingClientRect();
-      mouseVec.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      mouseVec.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-      raycaster.setFromCamera(mouseVec, camera);
-      const intersects = raycaster.intersectObjects(hitSpheres);
-      container.style.cursor = intersects.length > 0 ? 'pointer' : 'default';
+    // Touch handlers for mobile devices
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length !== 1) return;
+      isPointerDown = true;
+      pointerStartX = e.touches[0].clientX;
+      pointerStartY = e.touches[0].clientY;
+      totalMoved = 0;
     };
 
-    container.addEventListener('click', handleCanvasClick);
-    container.addEventListener('mousemove', handleCanvasPointerMove);
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isPointerDown || e.touches.length !== 1) return;
+      const touchX = e.touches[0].clientX;
+      const touchY = e.touches[0].clientY;
+      const dx = touchX - pointerStartX;
+      const dy = touchY - pointerStartY;
+      totalMoved += Math.abs(dx) + Math.abs(dy);
+      pointerStartX = touchX;
+      pointerStartY = touchY;
 
-    // Scroll-Driven 3D Interaction Listener
+      // Prevent page scroll when rotating 3D model
+      if (totalMoved > 5) {
+        e.preventDefault();
+      }
+
+      targetUserRotY += dx * 0.012;
+      targetUserRotX = Math.max(-0.6, Math.min(0.6, targetUserRotX + dy * 0.008));
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (!isPointerDown) return;
+      isPointerDown = false;
+
+      if (totalMoved < 8 && e.changedTouches.length > 0) {
+        checkRaycastHit(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+      }
+    };
+
+    container.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    container.addEventListener('touchstart', handleTouchStart, { passive: false });
+    container.addEventListener('touchmove', handleTouchMove, { passive: false });
+    container.addEventListener('touchend', handleTouchEnd);
+
+    // Scroll listener
     const handleScroll = () => {
       const scrollY = window.scrollY;
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
       const scrollProgress = Math.min(Math.max(scrollY / (docHeight || 1), 0), 1);
 
-      targetRotationY = scrollProgress * Math.PI * 3;
-      targetRotationX = Math.sin(scrollProgress * Math.PI * 2) * 0.25;
+      scrollRotY = scrollProgress * Math.PI * 2.5;
+      scrollRotX = Math.sin(scrollProgress * Math.PI * 2) * 0.2;
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -404,7 +482,8 @@ export default function KineticModel3D() {
     const handleResize = () => {
       if (!container) return;
       const newW = container.clientWidth;
-      const newH = container.clientHeight || 560;
+      const isMob = newW < 768;
+      const newH = container.clientHeight || (isMob ? 380 : 580);
       camera.aspect = newW / newH;
       camera.updateProjectionMatrix();
       renderer.setSize(newW, newH);
@@ -413,8 +492,8 @@ export default function KineticModel3D() {
     window.addEventListener('resize', handleResize);
 
     // 7. Dynamic Camera & Target Lerp Vectors
-    const targetCamPos = new THREE.Vector3(0, -0.1, initialZ);
-    const targetLookAt = new THREE.Vector3(0, -0.1, 0);
+    const targetCamPos = new THREE.Vector3(0, 0.0, initialZ);
+    const targetLookAt = new THREE.Vector3(0, 0.0, 0);
     const currentCamPos = targetCamPos.clone();
     const currentLookAt = targetLookAt.clone();
 
@@ -426,29 +505,37 @@ export default function KineticModel3D() {
       animationFrameId = requestAnimationFrame(animate);
       const elapsedTime = clock.getElapsedTime();
 
+      // Smooth drag rotation interpolation
+      userRotY += (targetUserRotY - userRotY) * 0.12;
+      userRotX += (targetUserRotX - userRotX) * 0.12;
+
+      const isMobile = container.clientWidth < 768;
       const currentTarget = activeJointRef.current;
       const isOverview = currentTarget.id === 'overview';
 
       if (isOverview) {
         const ovDist = getOverviewDist(container.clientWidth);
-        targetCamPos.set(0, -0.1, ovDist);
-        targetLookAt.set(0, -0.1, 0);
+        targetCamPos.set(0, 0.0, ovDist);
+        targetLookAt.set(0, 0.0, 0);
 
-        bodyGroup.rotation.y += (targetRotationY + mouseX - bodyGroup.rotation.y) * 0.05;
-        bodyGroup.rotation.x += (targetRotationX - mouseY - bodyGroup.rotation.x) * 0.05;
-        bodyGroup.position.y = Math.sin(elapsedTime * 1.5) * 0.04;
+        bodyGroup.rotation.y = userRotY + scrollRotY + mouseX;
+        bodyGroup.rotation.x = userRotX + scrollRotX - mouseY;
+        bodyGroup.position.y = Math.sin(elapsedTime * 1.5) * 0.03;
         reticleGroup.visible = false;
       } else {
-        // Zoom in to specific joint position
-        targetCamPos.set(currentTarget.camPos[0], currentTarget.camPos[1], currentTarget.camPos[2]);
-        targetLookAt.set(currentTarget.pos[0], currentTarget.pos[1], currentTarget.pos[2]);
+        // Zoom in to specific joint with calibrated framing for mobile vs desktop
+        const zoomZ = isMobile ? currentTarget.camPos[2] + 1.8 : currentTarget.camPos[2];
+        const targetX = isMobile ? currentTarget.pos[0] * 0.45 : currentTarget.pos[0] * 0.75;
+        const camX = isMobile ? currentTarget.pos[0] * 0.35 : currentTarget.camPos[0];
 
-        // Keep body aligned towards camera with subtle parallax
-        bodyGroup.rotation.y += (0 + mouseX * 0.25 - bodyGroup.rotation.y) * 0.06;
-        bodyGroup.rotation.x += (0 - mouseY * 0.25 - bodyGroup.rotation.x) * 0.06;
+        targetCamPos.set(camX, currentTarget.pos[1], zoomZ);
+        targetLookAt.set(targetX, currentTarget.pos[1], currentTarget.pos[2]);
+
+        // Keep interactive rotation active around the focused joint
+        bodyGroup.rotation.y = userRotY + mouseX * 0.25;
+        bodyGroup.rotation.x = userRotX - mouseY * 0.25;
         bodyGroup.position.y = 0;
 
-        // Position and pulse reticle around active joint
         reticleGroup.visible = true;
         reticleGroup.position.set(currentTarget.pos[0], currentTarget.pos[1], currentTarget.pos[2]);
         reticleRing1.rotation.z = elapsedTime * 2;
@@ -458,10 +545,10 @@ export default function KineticModel3D() {
       }
 
       // Smooth camera interpolation
-      currentCamPos.lerp(targetCamPos, 0.06);
+      currentCamPos.lerp(targetCamPos, 0.065);
       camera.position.copy(currentCamPos);
 
-      currentLookAt.lerp(targetLookAt, 0.06);
+      currentLookAt.lerp(targetLookAt, 0.065);
       camera.lookAt(currentLookAt);
 
       ribCageRings.forEach((ring, idx) => {
@@ -469,7 +556,7 @@ export default function KineticModel3D() {
         ring.scale.set(s, s, s);
       });
 
-      particleCloud.rotation.y = elapsedTime * 0.08;
+      particleCloud.rotation.y = elapsedTime * 0.06;
       renderer.render(scene, camera);
     };
 
@@ -477,11 +564,14 @@ export default function KineticModel3D() {
 
     return () => {
       cancelAnimationFrame(animationFrameId);
+      container.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      container.removeEventListener('touchstart', handleTouchStart);
+      container.removeEventListener('touchmove', handleTouchMove);
+      container.removeEventListener('touchend', handleTouchEnd);
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
-      container.removeEventListener('click', handleCanvasClick);
-      container.removeEventListener('mousemove', handleCanvasPointerMove);
       renderer.dispose();
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
@@ -490,77 +580,132 @@ export default function KineticModel3D() {
   }, []);
 
   return (
-    <div className="relative w-full rounded-3xl overflow-hidden bg-gradient-to-b from-white via-slate-50 to-teal-50/40 border border-slate-200/90 shadow-xl">
+    <div className="w-full">
       
-      {/* Clinical Telemetry HUD Top Bar */}
-      <div className="absolute top-4 left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-3 pointer-events-none">
-        <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-teal-200 text-[11px] font-mono text-teal-800 shadow-sm">
-          <span className="w-2 h-2 rounded-full bg-teal-500 animate-ping"></span>
-          <span>CLINICAL KINETIC BIOMECHANICS • LIVE TELEMETRY</span>
+      {/* MAIN 3D IMAGE FRAME */}
+      <div className="relative w-full rounded-3xl overflow-hidden bg-gradient-to-b from-white via-slate-50 to-teal-50/40 border border-slate-200/90 shadow-xl">
+        
+        {/* Clinical Telemetry HUD Top Bar */}
+        <div className="absolute top-3 left-3 right-3 sm:top-4 sm:left-4 sm:right-4 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+          <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full border border-teal-200 text-[10px] sm:text-[11px] font-mono text-teal-800 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-teal-500 animate-ping"></span>
+            <span>CLINICAL KINETIC BIOMECHANICS</span>
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-4 bg-white/95 backdrop-blur-md px-3 py-1 sm:px-4 sm:py-1.5 rounded-full border border-slate-200 text-[9px] sm:text-[10px] font-mono text-slate-600 shadow-sm">
+            <span>{activeJoint.metrics.m1Label}: <strong className="text-slate-900">{activeJoint.metrics.m1Val}</strong></span>
+            <span className="hidden sm:inline">{activeJoint.metrics.m2Label}: <strong className="text-teal-700">{activeJoint.metrics.m2Val}</strong></span>
+            <span className="hidden md:inline">{activeJoint.metrics.m3Label}: <strong className="text-sky-700">{activeJoint.metrics.m3Val}</strong></span>
+          </div>
         </div>
 
-        <div className="hidden sm:flex items-center gap-4 bg-white/95 backdrop-blur-md px-4 py-1.5 rounded-full border border-slate-200 text-[10px] font-mono text-slate-600 shadow-sm">
-          <span>{activeJoint.metrics.m1Label}: <strong className="text-slate-900">{activeJoint.metrics.m1Val}</strong></span>
-          <span>{activeJoint.metrics.m2Label}: <strong className="text-teal-700">{activeJoint.metrics.m2Val}</strong></span>
-          <span>{activeJoint.metrics.m3Label}: <strong className="text-sky-700">{activeJoint.metrics.m3Val}</strong></span>
+        {/* The WebGL 3D Canvas Mounting Container */}
+        <div 
+          ref={mountRef} 
+          className="w-full h-[380px] sm:h-[460px] md:h-[580px] lg:h-[640px] relative z-10 touch-none cursor-grab active:cursor-grabbing select-none"
+          title="Drag to rotate in 3D • Tap joints to zoom"
+        />
+
+        {/* Floating Mobile Interaction Hint (Unobtrusive bottom indicator) */}
+        <div className="absolute bottom-2.5 left-0 right-0 md:hidden flex items-center justify-center pointer-events-none z-20">
+          <span className="bg-slate-900/75 text-white backdrop-blur-md text-[10px] font-mono px-3 py-1 rounded-full shadow-sm flex items-center gap-2">
+            <span>🔄 Drag to rotate 3D</span>
+            <span>•</span>
+            <span>🎯 Tap joints to zoom</span>
+          </span>
         </div>
-      </div>
 
-      {/* The WebGL 3D Canvas Mounting Container */}
-      <div 
-        ref={mountRef} 
-        className="w-full h-[480px] sm:h-[580px] lg:h-[640px] relative z-10"
-        title="Click joints to zoom in • Scroll to rotate • Move mouse to tilt in 3D"
-      />
+        {/* Floating Desktop Hint */}
+        <div className="absolute top-1/2 right-4 -translate-y-1/2 hidden lg:flex flex-col items-center gap-2 text-[10px] font-mono text-slate-400 pointer-events-none z-10">
+          <span className="rotate-90 origin-center tracking-widest uppercase font-semibold">
+            {activeJoint.id === 'overview' ? 'Drag / Scroll 3D' : 'Zoom Active'}
+          </span>
+          <div className="w-0.5 h-12 bg-gradient-to-b from-teal-500 to-transparent mt-8 animate-pulse"></div>
+        </div>
 
-      {/* Interactive Hotspot Zone Selector (Bottom Controls) */}
-      <div className="absolute bottom-4 left-4 right-4 z-20 pointer-events-auto">
-        <div className="bg-white/95 backdrop-blur-xl p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          
-          <div className="space-y-1 max-w-lg">
-            <div className="flex items-center gap-2">
-              <span className="badge-medical text-[10px] font-mono px-2 py-0.5 rounded uppercase">
-                {activeJoint.id === 'overview' ? 'Global Analysis' : 'Target Joint Selected'}
-              </span>
-              <strong className="text-sm font-bold text-slate-900 tracking-tight">{activeJoint.name}</strong>
+        {/* DESKTOP ONLY: Floating Joint Selection & Text Section (Docked inside frame) */}
+        <div className="hidden md:block absolute bottom-4 left-4 right-4 z-20 pointer-events-auto">
+          <div className="bg-white/95 backdrop-blur-xl p-5 rounded-2xl border border-slate-200 shadow-lg flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+            
+            <div className="space-y-1 max-w-lg">
+              <div className="flex items-center gap-2">
+                <span className="badge-medical text-[10px] font-mono px-2 py-0.5 rounded uppercase">
+                  {activeJoint.id === 'overview' ? 'Global Analysis' : 'Target Joint Selected'}
+                </span>
+                <strong className="text-sm font-bold text-slate-900 tracking-tight">{activeJoint.name}</strong>
+              </div>
+              <p className="text-xs text-slate-600">
+                {activeJoint.condition} — Dynamic clinical kinematic capture.
+              </p>
             </div>
-            <p className="text-xs text-slate-600">
-              {activeJoint.condition} — Dynamic clinical kinematic capture.
-            </p>
-          </div>
 
-          {/* Hotspot Pills */}
-          <div className="flex flex-wrap items-center gap-1.5">
-            {HOTSPOTS.map((hotspot) => (
-              <button
-                key={hotspot.id}
-                onClick={() => selectJoint(hotspot)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-mono transition border cursor-pointer ${
-                  activeJoint.id === hotspot.id
-                    ? 'bg-teal-600 text-white font-bold border-teal-600 shadow-sm'
-                    : 'bg-slate-100 text-slate-700 border-slate-200 hover:border-teal-500 hover:text-teal-900'
-                }`}
+            {/* Hotspot Pills */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              {HOTSPOTS.map((hotspot) => (
+                <button
+                  key={hotspot.id}
+                  onClick={() => selectJoint(hotspot)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-mono transition border cursor-pointer ${
+                    activeJoint.id === hotspot.id
+                      ? 'bg-teal-600 text-white font-bold border-teal-600 shadow-sm'
+                      : 'bg-slate-100 text-slate-700 border-slate-200 hover:border-teal-500 hover:text-teal-900'
+                  }`}
+                >
+                  {hotspot.label}
+                </button>
+              ))}
+              <a
+                href="/services"
+                className="px-3 py-1.5 rounded-xl text-xs font-mono bg-slate-100 text-slate-800 hover:bg-slate-200 transition border border-slate-200 font-semibold"
               >
-                {hotspot.label}
-              </button>
-            ))}
-            <a
-              href="/services"
-              className="px-3 py-1.5 rounded-xl text-xs font-mono bg-slate-100 text-slate-800 hover:bg-slate-200 transition border border-slate-200 font-semibold"
-            >
-              All Protocols →
-            </a>
-          </div>
+                All Protocols →
+              </a>
+            </div>
 
+          </div>
         </div>
+
       </div>
 
-      {/* Floating Scroll / Zoom State Hint */}
-      <div className="absolute top-1/2 right-4 -translate-y-1/2 hidden lg:flex flex-col items-center gap-2 text-[10px] font-mono text-slate-400 pointer-events-none z-10">
-        <span className="rotate-90 origin-center tracking-widest uppercase font-semibold">
-          {activeJoint.id === 'overview' ? 'Scroll / Tilt 3D' : 'Zoom Active'}
-        </span>
-        <div className="w-0.5 h-12 bg-gradient-to-b from-teal-500 to-transparent mt-8 animate-pulse"></div>
+      {/* MOBILE ONLY: Joint Selection & Text Section (Moved OUTSIDE the main 3D image frame) */}
+      <div className="block md:hidden mt-3.5 bg-white rounded-2xl p-4 border border-slate-200/90 shadow-sm">
+        <div className="space-y-1.5 mb-3">
+          <div className="flex items-center justify-between gap-2">
+            <span className="badge-medical text-[10px] font-mono px-2 py-0.5 rounded uppercase">
+              {activeJoint.id === 'overview' ? 'Global Analysis' : 'Target Joint Selected'}
+            </span>
+            <span className="text-[10px] font-mono text-teal-700 font-semibold">
+              {activeJoint.metrics.m1Label}: {activeJoint.metrics.m1Val}
+            </span>
+          </div>
+          <h4 className="text-sm font-bold text-slate-900 tracking-tight">{activeJoint.name}</h4>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            {activeJoint.condition} — Dynamic clinical kinematic capture.
+          </p>
+        </div>
+
+        {/* Hotspot Pills for Mobile */}
+        <div className="flex flex-wrap gap-1.5 pt-2 border-t border-slate-100">
+          {HOTSPOTS.map((hotspot) => (
+            <button
+              key={hotspot.id}
+              onClick={() => selectJoint(hotspot)}
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-mono transition border cursor-pointer ${
+                activeJoint.id === hotspot.id
+                  ? 'bg-teal-600 text-white font-bold border-teal-600 shadow-sm'
+                  : 'bg-slate-100 text-slate-700 border-slate-200 active:bg-teal-50 active:text-teal-900'
+              }`}
+            >
+              {hotspot.label}
+            </button>
+          ))}
+          <a
+            href="/services"
+            className="px-2.5 py-1.5 rounded-xl text-xs font-mono bg-slate-100 text-slate-800 transition border border-slate-200 font-semibold"
+          >
+            All Protocols →
+          </a>
+        </div>
       </div>
 
     </div>
