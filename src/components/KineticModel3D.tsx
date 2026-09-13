@@ -269,6 +269,27 @@ const HOTSPOTS: JointHotspot[] = [
   },
 ];
 
+// Helper: Determine if a bone node matches the active joint
+function isBoneMatchingJoint(boneName: string, jointId: string): boolean {
+  const n = boneName.toLowerCase();
+  switch (jointId) {
+    case 'lumbar':
+      return n.includes('lumbar') || n.includes('l1') || n.includes('l2') || n.includes('l3') || n.includes('l4') || n.includes('l5');
+    case 'cervical':
+      return n.includes('cervical') || n.includes('atlas') || n.includes('axis') || n.includes('c1') || n.includes('c2') || n.includes('c3') || n.includes('c4') || n.includes('c5') || n.includes('c6') || n.includes('c7');
+    case 'shoulder-r':
+      return n.includes('clavicle') || n.includes('scapula') || n.includes('humerus');
+    case 'hip-r':
+      return n.includes('hip') || (n.includes('femur') && !n.includes('distal'));
+    case 'knee-r':
+      return n.includes('patella') || n.includes('tibia') || n.includes('fibula') || n.includes('femur');
+    case 'ankle-r':
+      return n.includes('talus') || n.includes('calcaneus') || n.includes('tibia') || n.includes('fibula');
+    default:
+      return false;
+  }
+}
+
 export default function KineticModel3D() {
   const mountRef = useRef<HTMLDivElement>(null);
   const [modelMode, setModelMode] = useState<ModelMode>('athletic');
@@ -313,7 +334,7 @@ export default function KineticModel3D() {
     container.appendChild(renderer.domElement);
 
     // 3. Clinical Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.1);
     scene.add(ambientLight);
 
     const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
@@ -324,7 +345,7 @@ export default function KineticModel3D() {
     fillLight.position.set(-5, 3, -4);
     scene.add(fillLight);
 
-    const rimLight = new THREE.DirectionalLight(0x0d9488, 2.0);
+    const rimLight = new THREE.DirectionalLight(0x0d9488, 2.2);
     rimLight.position.set(0, -4, -6);
     scene.add(rimLight);
 
@@ -340,6 +361,37 @@ export default function KineticModel3D() {
     rootGroup.add(athleticGroup);
     rootGroup.add(skeletalGroup);
     rootGroup.add(muscularGroup);
+
+    // Dynamic Materials for Highlighting & Slow Pulse
+    const defaultBoneMat = new THREE.MeshStandardMaterial({
+      color: 0xf1f5f9,
+      roughness: 0.6,
+      metalness: 0.05,
+      side: THREE.DoubleSide,
+    });
+
+    const activeBoneHighlightMat = new THREE.MeshStandardMaterial({
+      color: 0x0d9488, // Primary Teal
+      emissive: 0x14b8a6,
+      emissiveIntensity: 1.2,
+      roughness: 0.25,
+      metalness: 0.15,
+      side: THREE.DoubleSide,
+    });
+
+    const defaultJointRingMat = new THREE.MeshBasicMaterial({
+      color: 0x0d9488,
+      transparent: true,
+      opacity: 0.45,
+      side: THREE.DoubleSide,
+    });
+
+    const activeJointRingMat = new THREE.MeshBasicMaterial({
+      color: 0x14b8a6,
+      transparent: true,
+      opacity: 0.95,
+      side: THREE.DoubleSide,
+    });
 
     // Helper: Normalize any 3D model to exact human scale & bounding box (height 5.7, bottom at -2.9)
     const fitModelToFrame = (object: THREE.Object3D, targetHeight = 5.7, targetBottom = -2.9) => {
@@ -366,6 +418,8 @@ export default function KineticModel3D() {
     // =========================================================================
     // BUILD 1: ATHLETIC BIOMECHANICAL MANNEQUIN
     // =========================================================================
+    const athleticAccentRings: { id: string; mesh: THREE.Mesh }[] = [];
+
     gltfLoader.load(
       '/models/athletic-mannequin.glb',
       (gltf) => {
@@ -402,51 +456,66 @@ export default function KineticModel3D() {
       undefined,
       (err) => {
         console.warn('Athletic mannequin GLB fallback:', err);
-        // Fallback procedural athletic mannequin
-        const fallbackGeo = new THREE.CapsuleGeometry(0.35, 1.2, 16, 32);
-        const fallbackMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3, metalness: 0.8 });
-        const torso = new THREE.Mesh(fallbackGeo, fallbackMat);
-        torso.position.set(0, 0.8, 0);
-        athleticGroup.add(torso);
         setIsLoading(false);
       }
     );
 
-    // Accent Kinetic Rings for Athletic Model
-    const jointAccentMaterial = new THREE.MeshBasicMaterial({ color: 0x14b8a6, side: THREE.DoubleSide });
-    const addJointRing = (x: number, y: number, z: number, r: number) => {
-      const ringGeo = new THREE.RingGeometry(r, r + 0.04, 24);
-      const ring = new THREE.Mesh(ringGeo, jointAccentMaterial);
+    // Accent Articulation Rings for Athletic Model
+    const addAthleticJointRing = (id: string, x: number, y: number, z: number, r: number) => {
+      const ringGeo = new THREE.RingGeometry(r, r + 0.05, 32);
+      const ring = new THREE.Mesh(ringGeo, defaultJointRingMat.clone());
       ring.position.set(x, y, z);
       ring.rotation.x = Math.PI / 2;
       athleticGroup.add(ring);
+      athleticAccentRings.push({ id, mesh: ring });
     };
-    addJointRing(-0.7, -1.5, 0.1, 0.16); // Knee R
-    addJointRing(0.7, -1.5, 0.1, 0.16);  // Knee L
-    addJointRing(-0.6, -0.2, 0, 0.18);   // Hip R
-    addJointRing(0.6, -0.2, 0, 0.18);    // Hip L
-    addJointRing(-1.2, 1.8, 0, 0.18);    // Shoulder R
-    addJointRing(1.2, 1.8, 0, 0.18);     // Shoulder L
+
+    addAthleticJointRing('cervical', 0, 2.3, 0, 0.22);
+    addAthleticJointRing('shoulder-r', -1.2, 1.8, 0, 0.22);
+    addAthleticJointRing('lumbar', 0, 0.4, 0, 0.38);
+    addAthleticJointRing('hip-r', -0.6, -0.2, 0, 0.24);
+    addAthleticJointRing('knee-r', -0.7, -1.5, 0.1, 0.22);
+    addAthleticJointRing('ankle-r', -0.7, -2.8, 0, 0.2);
 
     // =========================================================================
-    // BUILD 2: SKELETAL ANATOMY (FULL SKELETON)
+    // BUILD 2: SKELETAL ANATOMY (FULL BILATERAL SKELETON)
     // =========================================================================
+    const skeletalMeshes: THREE.Mesh[] = [];
+
     gltfLoader.load(
       '/models/skeletal-anatomy.glb',
       (gltf) => {
         const model = gltf.scene;
+
+        // FIX: The original model from AnatomyTOOL only contains the right half.
+        // Mirror Bones_right and Cartilages_right across X=0 to create the complete bilateral skeleton!
+        const bonesRight = model.getObjectByName('Bones_right');
+        if (bonesRight) {
+          const bonesLeft = bonesRight.clone(true);
+          bonesLeft.name = 'Bones_left';
+          bonesLeft.scale.x = -1;
+          model.add(bonesLeft);
+        }
+
+        const cartRight = model.getObjectByName('Cartilages_right');
+        if (cartRight) {
+          const cartLeft = cartRight.clone(true);
+          cartLeft.name = 'Cartilages_left';
+          cartLeft.scale.x = -1;
+          model.add(cartLeft);
+        }
+
+        // Fit complete bilateral skeleton to exact human frame height
         fitModelToFrame(model, 5.7, -2.9);
 
-        // Realistic Medical Ivory Bone Material
-        const boneMat = new THREE.MeshStandardMaterial({
-          color: 0xf1f5f9,
-          roughness: 0.6,
-          metalness: 0.05,
-        });
-
+        // Collect all meshes for dynamic glow highlighting
         model.traverse((child) => {
           if ((child as THREE.Mesh).isMesh) {
-            (child as THREE.Mesh).material = boneMat;
+            const mesh = child as THREE.Mesh;
+            mesh.material = defaultBoneMat;
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            skeletalMeshes.push(mesh);
           }
         });
 
@@ -455,47 +524,14 @@ export default function KineticModel3D() {
       undefined,
       (err) => {
         console.warn('Skeletal GLB fallback:', err);
-        // High-definition procedural skeleton structure
-        const boneMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.5, metalness: 0.05 });
-        // Spine vertebrae
-        for (let y = -0.2; y <= 2.4; y += 0.18) {
-          const vert = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.12, 12), boneMat);
-          vert.position.set(0, y, 0);
-          skeletalGroup.add(vert);
-        }
-        // Skull
-        const cranium = new THREE.Mesh(new THREE.SphereGeometry(0.42, 16, 16), boneMat);
-        cranium.position.set(0, 2.9, 0);
-        skeletalGroup.add(cranium);
-        // Ribcage
-        for (let y = 0.8; y <= 1.9; y += 0.22) {
-          const rib = new THREE.Mesh(new THREE.TorusGeometry(0.45 + (1.9 - y) * 0.1, 0.04, 8, 24, Math.PI * 1.6), boneMat);
-          rib.rotation.x = Math.PI / 2;
-          rib.rotation.z = Math.PI * 0.2;
-          rib.position.set(0, y, 0);
-          skeletalGroup.add(rib);
-        }
-        // Pelvis
-        const pelvis = new THREE.Mesh(new THREE.TorusGeometry(0.52, 0.08, 12, 16), boneMat);
-        pelvis.rotation.x = Math.PI / 2;
-        pelvis.position.set(0, -0.2, 0);
-        skeletalGroup.add(pelvis);
-        // Femurs & Tibias
-        [-0.6, 0.6].forEach((x) => {
-          const femur = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.07, 1.2, 10), boneMat);
-          femur.position.set(x, -0.85, 0);
-          skeletalGroup.add(femur);
-          const tibia = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.06, 1.2, 10), boneMat);
-          tibia.position.set(x, -2.15, 0);
-          skeletalGroup.add(tibia);
-        });
       }
     );
 
     // =========================================================================
     // BUILD 3: MUSCULAR KINETIC CHAIN
     // =========================================================================
-    // Re-load contoured athletic body with deep myofascial ruby/crimson shading & glowing force lines
+    const kineticTubes: { id: string; mesh: THREE.Mesh }[] = [];
+
     gltfLoader.load(
       '/models/athletic-mannequin.glb',
       (gltf) => {
@@ -523,11 +559,10 @@ export default function KineticModel3D() {
       }
     );
 
-    // Kinetic Myofascial Force Vector Lines (Anterior & Posterior Kinetic Slings)
-    const kineticTubes: THREE.Mesh[] = [];
-    const createKineticLine = (points: THREE.Vector3[], colorHex: number) => {
+    // Kinetic Myofascial Force Vector Lines
+    const createKineticLine = (id: string, points: THREE.Vector3[], colorHex: number) => {
       const curve = new THREE.CatmullRomCurve3(points);
-      const tubeGeo = new THREE.TubeGeometry(curve, 32, 0.035, 8, false);
+      const tubeGeo = new THREE.TubeGeometry(curve, 32, 0.04, 8, false);
       const tubeMat = new THREE.MeshBasicMaterial({
         color: colorHex,
         transparent: true,
@@ -535,36 +570,46 @@ export default function KineticModel3D() {
       });
       const tube = new THREE.Mesh(tubeGeo, tubeMat);
       muscularGroup.add(tube);
-      kineticTubes.push(tube);
+      kineticTubes.push({ id, mesh: tube });
     };
 
-    // Kinetic Chain Sling 1: Right Foot -> Knee -> Hip -> Thoracolumbar Spine -> Left Latissimus
-    createKineticLine([
-      new THREE.Vector3(-0.7, -2.8, 0.1),
-      new THREE.Vector3(-0.7, -1.5, 0.15),
-      new THREE.Vector3(-0.6, -0.2, 0.1),
-      new THREE.Vector3(0, 0.5, 0.05),
-      new THREE.Vector3(0.6, 1.5, 0.1),
-      new THREE.Vector3(1.2, 1.8, 0.1),
-    ], 0xf59e0b); // Amber kinetic energy
+    // Kinetic Chain Lines mapped to Hotspots
+    createKineticLine('lumbar', [
+      new THREE.Vector3(-0.5, -0.2, 0.15),
+      new THREE.Vector3(0, 0.4, 0.18),
+      new THREE.Vector3(0.5, -0.2, 0.15),
+    ], 0x0d9488); // Lumbar pelvic corset
 
-    // Kinetic Chain Sling 2: Left Foot -> Knee -> Hip -> Lumbar -> Right Shoulder
-    createKineticLine([
-      new THREE.Vector3(0.7, -2.8, 0.1),
-      new THREE.Vector3(0.7, -1.5, 0.15),
-      new THREE.Vector3(0.6, -0.2, 0.1),
-      new THREE.Vector3(0, 0.5, 0.05),
-      new THREE.Vector3(-0.6, 1.5, 0.1),
-      new THREE.Vector3(-1.2, 1.8, 0.1),
-    ], 0x06b6d4); // Cyan kinetic tension
-
-    // Kinetic Chain Sling 3: Bilateral Cervical-Lumbar Core Spine Line
-    createKineticLine([
+    createKineticLine('cervical', [
       new THREE.Vector3(0, 2.7, 0.1),
-      new THREE.Vector3(0, 1.8, 0.15),
-      new THREE.Vector3(0, 0.4, 0.15),
-      new THREE.Vector3(0, -0.2, 0.15),
-    ], 0x10b981); // Emerald stability
+      new THREE.Vector3(0, 2.3, 0.14),
+      new THREE.Vector3(-0.6, 1.8, 0.1),
+      new THREE.Vector3(0.6, 1.8, 0.1),
+    ], 0x0d9488); // Cervical trapezius sling
+
+    createKineticLine('shoulder-r', [
+      new THREE.Vector3(0, 1.8, 0.12),
+      new THREE.Vector3(-0.8, 1.85, 0.15),
+      new THREE.Vector3(-1.3, 1.8, 0.1),
+    ], 0x06b6d4); // Right Rotator cuff chain
+
+    createKineticLine('knee-r', [
+      new THREE.Vector3(-0.6, -0.2, 0.15),
+      new THREE.Vector3(-0.7, -1.5, 0.2),
+      new THREE.Vector3(-0.7, -2.8, 0.15),
+    ], 0x0d9488); // Right Quad-Patellar chain
+
+    createKineticLine('hip-r', [
+      new THREE.Vector3(0, 0.2, 0.12),
+      new THREE.Vector3(-0.6, -0.2, 0.18),
+      new THREE.Vector3(-0.65, -0.9, 0.15),
+    ], 0xf59e0b); // Right Gluteus-Iliotibial chain
+
+    createKineticLine('ankle-r', [
+      new THREE.Vector3(-0.7, -1.8, 0.12),
+      new THREE.Vector3(-0.7, -2.8, 0.18),
+      new THREE.Vector3(-0.7, -2.9, 0.35),
+    ], 0x10b981); // Achilles-Plantar chain
 
     // 5. Clinical Floor Force-Grid
     const grid = new THREE.GridHelper(8, 16, 0x0d9488, 0xcbd5e1);
@@ -576,11 +621,11 @@ export default function KineticModel3D() {
     // 6. Glowing Target Reticle for Joint Focusing
     const reticleGroup = new THREE.Group();
     const ring1 = new THREE.Mesh(
-      new THREE.RingGeometry(0.22, 0.25, 32),
+      new THREE.RingGeometry(0.24, 0.27, 32),
       new THREE.MeshBasicMaterial({ color: 0x0d9488, side: THREE.DoubleSide, transparent: true, opacity: 0.85 })
     );
     const ring2 = new THREE.Mesh(
-      new THREE.RingGeometry(0.12, 0.14, 24),
+      new THREE.RingGeometry(0.14, 0.16, 24),
       new THREE.MeshBasicMaterial({ color: 0x0284c7, side: THREE.DoubleSide, transparent: true, opacity: 0.75 })
     );
     reticleGroup.add(ring1);
@@ -590,7 +635,7 @@ export default function KineticModel3D() {
 
     // 7. Clickable Raycast Hit Targets
     const hitSpheres: THREE.Mesh[] = [];
-    const hitGeo = new THREE.SphereGeometry(0.38, 12, 12);
+    const hitGeo = new THREE.SphereGeometry(0.42, 12, 12);
     const hitMat = new THREE.MeshBasicMaterial({ visible: false });
 
     HOTSPOTS.filter((h) => h.id !== 'overview').forEach((h) => {
@@ -749,6 +794,7 @@ export default function KineticModel3D() {
 
     let animationFrameId: number;
     let clock = new THREE.Clock();
+    let lastHighlightedJointId = '';
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
@@ -764,15 +810,57 @@ export default function KineticModel3D() {
       skeletalGroup.visible = currentMode === 'skeletal';
       muscularGroup.visible = currentMode === 'muscular';
 
-      // Kinetic pulse effect on muscular force lines
-      if (muscularGroup.visible) {
-        kineticTubes.forEach((tube, idx) => {
-          const mat = tube.material as THREE.MeshBasicMaterial;
-          mat.opacity = 0.65 + Math.sin(elapsedTime * 4 + idx * 1.5) * 0.25;
+      // =======================================================================
+      // SLOW RHYTHMIC PULSE IN PRIMARY COLOR (~2.2s per breath)
+      // =======================================================================
+      const slowPulse = 0.5 + 0.5 * Math.sin(elapsedTime * 2.8);
+      activeBoneHighlightMat.emissiveIntensity = 0.5 + 1.4 * slowPulse;
+
+      const currentTarget = activeJointRef.current;
+      const currentJointId = currentTarget.id;
+
+      // Update highlighted skeletal bones whenever selected joint changes
+      if (lastHighlightedJointId !== currentJointId && skeletalMeshes.length > 0) {
+        lastHighlightedJointId = currentJointId;
+
+        skeletalMeshes.forEach((mesh) => {
+          if (currentJointId === 'overview') {
+            mesh.material = defaultBoneMat;
+          } else if (isBoneMatchingJoint(mesh.name, currentJointId)) {
+            mesh.material = activeBoneHighlightMat;
+          } else {
+            mesh.material = defaultBoneMat;
+          }
         });
       }
 
-      const currentTarget = activeJointRef.current;
+      // Athletic mode accent rings pulsing
+      if (athleticGroup.visible) {
+        athleticAccentRings.forEach(({ id, mesh }) => {
+          const isSelected = currentJointId === id;
+          const mat = mesh.material as THREE.MeshBasicMaterial;
+          if (isSelected) {
+            mat.color.setHex(0x14b8a6);
+            mat.opacity = 0.6 + 0.4 * slowPulse;
+            const s = 1 + 0.08 * slowPulse;
+            mesh.scale.set(s, s, s);
+          } else {
+            mat.color.setHex(0x0d9488);
+            mat.opacity = currentJointId === 'overview' ? 0.35 : 0.15;
+            mesh.scale.set(1, 1, 1);
+          }
+        });
+      }
+
+      // Muscular mode kinetic tubes pulsing
+      if (muscularGroup.visible) {
+        kineticTubes.forEach(({ id, mesh }) => {
+          const isSelected = currentJointId === id || currentJointId === 'overview';
+          const mat = mesh.material as THREE.MeshBasicMaterial;
+          mat.opacity = isSelected ? 0.6 + 0.38 * slowPulse : 0.2;
+        });
+      }
+
       const isMobile = container.clientWidth < 768;
 
       if (currentTarget.id === 'overview') {
@@ -912,14 +1000,14 @@ export default function KineticModel3D() {
           <span className="bg-slate-900/75 text-white backdrop-blur-md text-[10px] font-mono px-3 py-1 rounded-full shadow-sm flex items-center gap-2">
             <span>🔄 Drag to rotate 3D</span>
             <span>•</span>
-            <span>🎯 Tap joints to zoom</span>
+            <span>🎯 Tap joints to zoom & glow</span>
           </span>
         </div>
 
         {/* FLOATING DESKTOP ROTATION HINT */}
         <div className="absolute top-1/2 right-4 -translate-y-1/2 hidden lg:flex flex-col items-center gap-2 text-[10px] font-mono text-slate-400 pointer-events-none z-10">
           <span className="rotate-90 origin-center tracking-widest uppercase font-semibold">
-            {activeJoint.id === 'overview' ? 'Drag / Scroll 3D' : 'Zoom Active'}
+            {activeJoint.id === 'overview' ? 'Drag / Scroll 3D' : 'Target Glowing'}
           </span>
           <div className="w-0.5 h-12 bg-gradient-to-b from-teal-500 to-transparent mt-8 animate-pulse"></div>
         </div>
@@ -938,7 +1026,7 @@ export default function KineticModel3D() {
                 <strong className="text-sm font-bold text-slate-900 tracking-tight">{activeJoint.name}</strong>
               </div>
               <p className="text-xs text-slate-600">
-                {activeJoint.condition} — Advanced objective kinematic evaluation.
+                {activeJoint.condition} — Dynamic anatomical pulse mode active.
               </p>
             </div>
 
@@ -985,7 +1073,7 @@ export default function KineticModel3D() {
           </div>
           <h4 className="text-sm font-bold text-slate-900 tracking-tight">{activeJoint.name}</h4>
           <p className="text-xs text-slate-600 leading-relaxed">
-            {activeJoint.condition} — Advanced objective kinematic evaluation.
+            {activeJoint.condition} — Dynamic anatomical pulse mode active.
           </p>
         </div>
 
