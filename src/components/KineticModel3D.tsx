@@ -20,6 +20,7 @@ export interface JointHotspot {
   name: string;
   pos: [number, number, number];
   camPos: [number, number, number];
+  bilateralSpan?: number;
   condition: string;
   metrics: {
     athletic: JointMetric;
@@ -98,18 +99,19 @@ const HOTSPOTS: JointHotspot[] = [
     },
   },
   {
-    id: 'shoulder-r',
-    label: 'R Shoulder',
-    name: 'Right Rotator Cuff & Scapula',
-    pos: [-1.2, 1.8, 0],
-    camPos: [-0.9, 1.8, 3.2],
-    condition: 'Rotator Cuff Tear, Impingement & Throwing Scapular Rhythm',
+    id: 'shoulders',
+    label: 'Shoulders',
+    name: 'Shoulders (Bilateral Rotator Cuff & Scapula)',
+    pos: [0, 1.75, 0],
+    camPos: [0, 1.75, 3.6],
+    bilateralSpan: 1.15,
+    condition: 'Rotator Cuff Tear, Impingement & Bilateral Scapular Rhythm',
     metrics: {
       athletic: {
         m1Label: 'SCAPULAR RHYTHM',
         m1Val: '2.1 : 1',
-        m2Label: 'INTERNAL ROT.',
-        m2Val: '68°',
+        m2Label: 'BILATERAL ROM',
+        m2Val: '175° Normal',
         m3Label: 'PEAK VELOCITY',
         m3Val: '840°/s',
       },
@@ -166,12 +168,13 @@ const HOTSPOTS: JointHotspot[] = [
     },
   },
   {
-    id: 'hip-r',
-    label: 'R Hip',
-    name: 'Right Hip & Femoroacetabular Joint',
-    pos: [-0.6, -0.2, 0],
-    camPos: [-0.5, -0.2, 3.2],
-    condition: 'Adductor Strain, FAI Stability & Gluteal Firing Mechanics',
+    id: 'hips',
+    label: 'Hips',
+    name: 'Hips & Pelvic Complex (Bilateral)',
+    pos: [0, -0.25, 0],
+    camPos: [0, -0.25, 3.4],
+    bilateralSpan: 0.55,
+    condition: 'Adductor Strain, FAI Stability & Bilateral Gluteal Firing Mechanics',
     metrics: {
       athletic: {
         m1Label: 'HIP ABDUCTION',
@@ -200,12 +203,13 @@ const HOTSPOTS: JointHotspot[] = [
     },
   },
   {
-    id: 'knee-r',
-    label: 'R Knee',
-    name: 'Right Knee Joint (ACL / Meniscus)',
-    pos: [-0.7, -1.5, 0.1],
-    camPos: [-0.6, -1.5, 3.0],
-    condition: 'ACL Reconstruction, Meniscus Repair & Dynamic Valgus Correction',
+    id: 'knees',
+    label: 'Knees',
+    name: 'Knees (Bilateral ACL, Meniscus & Patella)',
+    pos: [0, -1.5, 0.05],
+    camPos: [0, -1.5, 3.3],
+    bilateralSpan: 0.65,
+    condition: 'ACL Reconstruction, Meniscus Repair & Bilateral Valgus Correction',
     metrics: {
       athletic: {
         m1Label: 'QUAD FORCE',
@@ -234,11 +238,12 @@ const HOTSPOTS: JointHotspot[] = [
     },
   },
   {
-    id: 'ankle-r',
-    label: 'R Ankle',
-    name: 'Right Ankle & Achilles Complex',
-    pos: [-0.7, -2.8, 0],
-    camPos: [-0.6, -2.7, 3.0],
+    id: 'ankles',
+    label: 'Ankles',
+    name: 'Ankles & Achilles Complex (Bilateral)',
+    pos: [0, -2.75, 0],
+    camPos: [0, -2.75, 3.1],
+    bilateralSpan: 0.65,
     condition: 'Achilles Tendinopathy Heavy Loading & Inversion Sprain Stability',
     metrics: {
       athletic: {
@@ -269,28 +274,28 @@ const HOTSPOTS: JointHotspot[] = [
   },
 ];
 
-// Helper: Determine if a bone node matches the active joint
+// Helper: Determine if a bone node matches the active joint (bilateral)
 function isBoneMatchingJoint(boneName: string, jointId: string): boolean {
   const n = boneName.toLowerCase();
   switch (jointId) {
     case 'lumbar':
-      return n.includes('lumbar') || n.includes('l1') || n.includes('l2') || n.includes('l3') || n.includes('l4') || n.includes('l5');
+      return n.includes('lumbar') || n.includes('l1') || n.includes('l2') || n.includes('l3') || n.includes('l4') || n.includes('l5') || n.includes('sacrum') || n.includes('coccyx');
     case 'cervical':
       return n.includes('cervical') || n.includes('atlas') || n.includes('axis') || n.includes('c1') || n.includes('c2') || n.includes('c3') || n.includes('c4') || n.includes('c5') || n.includes('c6') || n.includes('c7');
-    case 'shoulder-r':
+    case 'shoulders':
       return n.includes('clavicle') || n.includes('scapula') || n.includes('humerus');
-    case 'hip-r':
-      return n.includes('hip') || (n.includes('femur') && !n.includes('distal'));
-    case 'knee-r':
+    case 'hips':
+      return n.includes('hip') || n.includes('pelvis') || n.includes('ilium') || n.includes('ischium') || n.includes('pubis') || (n.includes('femur') && !n.includes('distal') && !n.includes('condyle'));
+    case 'knees':
       return n.includes('patella') || n.includes('tibia') || n.includes('fibula') || n.includes('femur');
-    case 'ankle-r':
-      return n.includes('talus') || n.includes('calcaneus') || n.includes('tibia') || n.includes('fibula');
+    case 'ankles':
+      return n.includes('talus') || n.includes('calcaneus') || n.includes('navicular') || n.includes('cuneiform') || n.includes('cuboid') || n.includes('metatarsal') || (n.includes('tibia') && n.includes('distal'));
     default:
       return false;
   }
 }
 
-// Helper: Determine if an anatomical muscle matches the active joint
+// Helper: Determine if an anatomical muscle matches the active joint (bilateral)
 function isMuscleMatchingJoint(muscleName: string, jointId: string): boolean {
   const n = muscleName.toLowerCase();
   switch (jointId) {
@@ -298,13 +303,13 @@ function isMuscleMatchingJoint(muscleName: string, jointId: string): boolean {
       return /multifidus|quadratus lumborum|latissimus|psoas|rectus abdominis|abdominal oblique|erector spinae/i.test(n);
     case 'cervical':
       return /trapezius|multifidus colli|sternocleido|splenius|levator scapulae|scalen/i.test(n);
-    case 'shoulder-r':
+    case 'shoulders':
       return /deltoid|supraspinatus|infraspinatus|subscapularis|teres|pectoralis|biceps brachii/i.test(n);
-    case 'hip-r':
+    case 'hips':
       return /gluteus|piriformis|tensor fasciae|iliacus|obturator internus|gemellus/i.test(n);
-    case 'knee-r':
+    case 'knees':
       return /rectus femoris|vastus|biceps femoris|semitendinosus|semimembranosus|popliteus/i.test(n);
-    case 'ankle-r':
+    case 'ankles':
       return /tibialis|soleus|fibularis|gastrocnemius/i.test(n);
     default:
       return false;
@@ -515,17 +520,17 @@ export default function KineticModel3D() {
     };
 
     addAthleticJointRing('cervical', 0, 2.3, 0, 0.22);
-    addAthleticJointRing('shoulder-r', -1.15, 1.75, 0, 0.22);
-    addAthleticJointRing('shoulder-l', 1.15, 1.75, 0, 0.22);
+    addAthleticJointRing('shoulders', -1.15, 1.75, 0, 0.22);
+    addAthleticJointRing('shoulders', 1.15, 1.75, 0, 0.22);
     addAthleticJointRing('lumbar', 0, 0.4, 0, 0.38);
-    addAthleticJointRing('hip-r', -0.55, -0.25, 0, 0.24);
-    addAthleticJointRing('hip-l', 0.55, -0.25, 0, 0.24);
-    addAthleticJointRing('knee-r', -0.65, -1.5, 0.05, 0.22);
-    addAthleticJointRing('knee-l', 0.65, -1.5, 0.05, 0.22);
-    addAthleticJointRing('ankle-r', -0.65, -2.75, 0, 0.2);
-    addAthleticJointRing('ankle-l', 0.65, -2.75, 0, 0.2);
+    addAthleticJointRing('hips', -0.55, -0.25, 0, 0.24);
+    addAthleticJointRing('hips', 0.55, -0.25, 0, 0.24);
+    addAthleticJointRing('knees', -0.65, -1.5, 0.05, 0.22);
+    addAthleticJointRing('knees', 0.65, -1.5, 0.05, 0.22);
+    addAthleticJointRing('ankles', -0.65, -2.75, 0, 0.2);
+    addAthleticJointRing('ankles', 0.65, -2.75, 0, 0.2);
 
-    // Kinetic Articulation Center Nodes on Athletic Model
+    // Kinetic Articulation Center Nodes on Athletic Model (mapped to joints)
     const athleticJointNodeGeo = new THREE.SphereGeometry(0.065, 16, 16);
     const athleticJointNodeMat = new THREE.MeshStandardMaterial({
       color: 0x0d9488,
@@ -534,21 +539,28 @@ export default function KineticModel3D() {
       roughness: 0.2,
       metalness: 0.3,
     });
-    const jointPositions = [
-      [0, 2.3, 0], // cervical
-      [-1.15, 1.75, 0], [1.15, 1.75, 0], // shoulders
-      [-1.35, 0.9, -0.05], [1.35, 0.9, -0.05], // elbows
-      [-1.4, 0.05, 0], [1.4, 0.05, 0], // wrists
-      [0, 0.4, 0], // lumbar
-      [-0.55, -0.25, 0], [0.55, -0.25, 0], // hips
-      [-0.65, -1.5, 0.05], [0.65, -1.5, 0.05], // knees
-      [-0.65, -2.75, 0], [0.65, -2.75, 0], // ankles
-    ];
-    jointPositions.forEach(([jx, jy, jz]) => {
-      const nodeMesh = new THREE.Mesh(athleticJointNodeGeo, athleticJointNodeMat);
+    const athleticJointNodes: { id: string; mesh: THREE.Mesh }[] = [];
+    const addAthleticJointNode = (id: string, jx: number, jy: number, jz: number) => {
+      const nodeMesh = new THREE.Mesh(athleticJointNodeGeo, athleticJointNodeMat.clone());
       nodeMesh.position.set(jx, jy, jz);
       athleticGroup.add(nodeMesh);
-    });
+      athleticJointNodes.push({ id, mesh: nodeMesh });
+    };
+
+    addAthleticJointNode('cervical', 0, 2.3, 0);
+    addAthleticJointNode('shoulders', -1.15, 1.75, 0);
+    addAthleticJointNode('shoulders', 1.15, 1.75, 0);
+    addAthleticJointNode('elbows', -1.35, 0.9, -0.05);
+    addAthleticJointNode('elbows', 1.35, 0.9, -0.05);
+    addAthleticJointNode('wrists', -1.4, 0.05, 0);
+    addAthleticJointNode('wrists', 1.4, 0.05, 0);
+    addAthleticJointNode('lumbar', 0, 0.4, 0);
+    addAthleticJointNode('hips', -0.55, -0.25, 0);
+    addAthleticJointNode('hips', 0.55, -0.25, 0);
+    addAthleticJointNode('knees', -0.65, -1.5, 0.05);
+    addAthleticJointNode('knees', 0.65, -1.5, 0.05);
+    addAthleticJointNode('ankles', -0.65, -2.75, 0);
+    addAthleticJointNode('ankles', 0.65, -2.75, 0);
 
     // =========================================================================
     // BUILD 2: SKELETAL ANATOMY (FULL BILATERAL MEDICAL SKELETON)
@@ -648,7 +660,7 @@ export default function KineticModel3D() {
       kineticTubes.push({ id, mesh: tube });
     };
 
-    // Kinetic Chain Lines mapped to Hotspots
+    // Bilateral Kinetic Chain Lines mapped to Hotspots
     createKineticLine('lumbar', [
       new THREE.Vector3(-0.5, -0.2, 0.15),
       new THREE.Vector3(0, 0.4, 0.18),
@@ -662,29 +674,53 @@ export default function KineticModel3D() {
       new THREE.Vector3(0.6, 1.8, 0.1),
     ], 0x0d9488); // Cervical trapezius sling
 
-    createKineticLine('shoulder-r', [
+    // Bilateral Shoulders Rotator Cuff Chain
+    createKineticLine('shoulders', [
       new THREE.Vector3(0, 1.8, 0.12),
       new THREE.Vector3(-0.8, 1.85, 0.15),
       new THREE.Vector3(-1.3, 1.8, 0.1),
-    ], 0x06b6d4); // Right Rotator cuff chain
+    ], 0x06b6d4);
+    createKineticLine('shoulders', [
+      new THREE.Vector3(0, 1.8, 0.12),
+      new THREE.Vector3(0.8, 1.85, 0.15),
+      new THREE.Vector3(1.3, 1.8, 0.1),
+    ], 0x06b6d4);
 
-    createKineticLine('knee-r', [
+    // Bilateral Knees Quad-Patellar Chain
+    createKineticLine('knees', [
       new THREE.Vector3(-0.6, -0.2, 0.15),
-      new THREE.Vector3(-0.7, -1.5, 0.2),
-      new THREE.Vector3(-0.7, -2.8, 0.15),
-    ], 0x0d9488); // Right Quad-Patellar chain
+      new THREE.Vector3(-0.65, -1.5, 0.2),
+      new THREE.Vector3(-0.65, -2.8, 0.15),
+    ], 0x0d9488);
+    createKineticLine('knees', [
+      new THREE.Vector3(0.6, -0.2, 0.15),
+      new THREE.Vector3(0.65, -1.5, 0.2),
+      new THREE.Vector3(0.65, -2.8, 0.15),
+    ], 0x0d9488);
 
-    createKineticLine('hip-r', [
+    // Bilateral Hips Gluteus-Pelvis Chain
+    createKineticLine('hips', [
       new THREE.Vector3(0, 0.2, 0.12),
       new THREE.Vector3(-0.6, -0.2, 0.18),
       new THREE.Vector3(-0.65, -0.9, 0.15),
-    ], 0xf59e0b); // Right Gluteus-Iliotibial chain
+    ], 0xf59e0b);
+    createKineticLine('hips', [
+      new THREE.Vector3(0, 0.2, 0.12),
+      new THREE.Vector3(0.6, -0.2, 0.18),
+      new THREE.Vector3(0.65, -0.9, 0.15),
+    ], 0xf59e0b);
 
-    createKineticLine('ankle-r', [
-      new THREE.Vector3(-0.7, -1.8, 0.12),
-      new THREE.Vector3(-0.7, -2.8, 0.18),
-      new THREE.Vector3(-0.7, -2.9, 0.35),
-    ], 0x10b981); // Achilles-Plantar chain
+    // Bilateral Ankles Achilles-Plantar Chain
+    createKineticLine('ankles', [
+      new THREE.Vector3(-0.65, -1.8, 0.12),
+      new THREE.Vector3(-0.65, -2.75, 0.18),
+      new THREE.Vector3(-0.65, -2.9, 0.35),
+    ], 0x10b981);
+    createKineticLine('ankles', [
+      new THREE.Vector3(0.65, -1.8, 0.12),
+      new THREE.Vector3(0.65, -2.75, 0.18),
+      new THREE.Vector3(0.65, -2.9, 0.35),
+    ], 0x10b981);
 
     // 5. Clinical Floor Force-Grid
     const grid = new THREE.GridHelper(8, 16, 0x0d9488, 0xcbd5e1);
@@ -693,32 +729,55 @@ export default function KineticModel3D() {
     grid.material.transparent = true;
     scene.add(grid);
 
-    // 6. Glowing Target Reticle for Joint Focusing
-    const reticleGroup = new THREE.Group();
-    const ring1 = new THREE.Mesh(
-      new THREE.RingGeometry(0.24, 0.27, 32),
-      new THREE.MeshBasicMaterial({ color: 0x0d9488, side: THREE.DoubleSide, transparent: true, opacity: 0.85 })
-    );
-    const ring2 = new THREE.Mesh(
-      new THREE.RingGeometry(0.14, 0.16, 24),
-      new THREE.MeshBasicMaterial({ color: 0x0284c7, side: THREE.DoubleSide, transparent: true, opacity: 0.75 })
-    );
-    reticleGroup.add(ring1);
-    reticleGroup.add(ring2);
-    rootGroup.add(reticleGroup);
-    reticleGroup.visible = false;
+    // 6. Glowing Target Reticles for Joint Focusing (Bilateral Pair)
+    const createReticle = () => {
+      const g = new THREE.Group();
+      const ring1 = new THREE.Mesh(
+        new THREE.RingGeometry(0.24, 0.27, 32),
+        new THREE.MeshBasicMaterial({ color: 0x0d9488, side: THREE.DoubleSide, transparent: true, opacity: 0.85 })
+      );
+      const ring2 = new THREE.Mesh(
+        new THREE.RingGeometry(0.14, 0.16, 24),
+        new THREE.MeshBasicMaterial({ color: 0x0284c7, side: THREE.DoubleSide, transparent: true, opacity: 0.75 })
+      );
+      g.add(ring1);
+      g.add(ring2);
+      g.visible = false;
+      rootGroup.add(g);
+      return { group: g, ring1, ring2 };
+    };
 
-    // 7. Clickable Raycast Hit Targets
+    const reticleRight = createReticle();
+    const reticleLeft = createReticle();
+
+    // 7. Clickable Raycast Hit Targets (Bilateral for Pairs)
     const hitSpheres: THREE.Mesh[] = [];
     const hitGeo = new THREE.SphereGeometry(0.42, 12, 12);
     const hitMat = new THREE.MeshBasicMaterial({ visible: false });
 
     HOTSPOTS.filter((h) => h.id !== 'overview').forEach((h) => {
-      const hitMesh = new THREE.Mesh(hitGeo, hitMat);
-      hitMesh.position.set(h.pos[0], h.pos[1], h.pos[2]);
-      hitMesh.userData = { hotspotId: h.id };
-      rootGroup.add(hitMesh);
-      hitSpheres.push(hitMesh);
+      const span = h.bilateralSpan || 0;
+      if (span > 0) {
+        // Right side hit target
+        const hitR = new THREE.Mesh(hitGeo, hitMat);
+        hitR.position.set(-span, h.pos[1], h.pos[2]);
+        hitR.userData = { hotspotId: h.id };
+        rootGroup.add(hitR);
+        hitSpheres.push(hitR);
+
+        // Left side hit target
+        const hitL = new THREE.Mesh(hitGeo, hitMat);
+        hitL.position.set(span, h.pos[1], h.pos[2]);
+        hitL.userData = { hotspotId: h.id };
+        rootGroup.add(hitL);
+        hitSpheres.push(hitL);
+      } else {
+        const hitMesh = new THREE.Mesh(hitGeo, hitMat);
+        hitMesh.position.set(h.pos[0], h.pos[1], h.pos[2]);
+        hitMesh.userData = { hotspotId: h.id };
+        rootGroup.add(hitMesh);
+        hitSpheres.push(hitMesh);
+      }
     });
 
     // 8. Interactive Click-and-Drag Rotation & Touch Controls
@@ -925,7 +984,7 @@ export default function KineticModel3D() {
 
       }
 
-      // Athletic mode accent rings pulsing
+      // Athletic mode accent rings & joint center nodes pulsing (both Left & Right)
       if (athleticGroup.visible) {
         athleticAccentRings.forEach(({ id, mesh }) => {
           const isSelected = currentJointId === id;
@@ -941,9 +1000,24 @@ export default function KineticModel3D() {
             mesh.scale.set(1, 1, 1);
           }
         });
+
+        athleticJointNodes.forEach(({ id, mesh }) => {
+          const isSelected = currentJointId === id;
+          const mat = mesh.material as THREE.MeshStandardMaterial;
+          if (isSelected) {
+            mat.emissive.setHex(0x14b8a6);
+            mat.emissiveIntensity = 1.2 + 0.8 * slowPulse;
+            const s = 1.15 + 0.1 * slowPulse;
+            mesh.scale.set(s, s, s);
+          } else {
+            mat.emissive.setHex(0x0d9488);
+            mat.emissiveIntensity = currentJointId === 'overview' ? 0.9 : 0.4;
+            mesh.scale.set(1, 1, 1);
+          }
+        });
       }
 
-      // Muscular mode kinetic tubes pulsing
+      // Muscular mode kinetic tubes pulsing (both Left & Right)
       if (muscularGroup.visible) {
         kineticTubes.forEach(({ id, mesh }) => {
           const isSelected = currentJointId === id || currentJointId === 'overview';
@@ -962,25 +1036,43 @@ export default function KineticModel3D() {
         rootGroup.rotation.y = userRotY + scrollRotY + mouseX;
         rootGroup.rotation.x = userRotX + scrollRotX - mouseY;
         rootGroup.position.y = Math.sin(elapsedTime * 1.5) * 0.03;
-        reticleGroup.visible = false;
+        reticleRight.group.visible = false;
+        reticleLeft.group.visible = false;
       } else {
         const zoomZ = isMobile ? currentTarget.camPos[2] + 1.8 : currentTarget.camPos[2];
-        const targetX = isMobile ? currentTarget.pos[0] * 0.45 : currentTarget.pos[0] * 0.75;
-        const camX = isMobile ? currentTarget.pos[0] * 0.35 : currentTarget.camPos[0];
-
-        targetCamPos.set(camX, currentTarget.pos[1], zoomZ);
-        targetLookAt.set(targetX, currentTarget.pos[1], currentTarget.pos[2]);
+        targetCamPos.set(0, currentTarget.pos[1], zoomZ);
+        targetLookAt.set(0, currentTarget.pos[1], currentTarget.pos[2]);
 
         rootGroup.rotation.y = userRotY + mouseX * 0.25;
         rootGroup.rotation.x = userRotX - mouseY * 0.25;
         rootGroup.position.y = 0;
 
-        reticleGroup.visible = true;
-        reticleGroup.position.set(currentTarget.pos[0], currentTarget.pos[1], currentTarget.pos[2]);
-        ring1.rotation.z = elapsedTime * 2;
-        ring2.rotation.z = -elapsedTime * 2.5;
+        const span = currentTarget.bilateralSpan || 0;
         const pulse = 1 + Math.sin(elapsedTime * 5) * 0.08;
-        reticleGroup.scale.set(pulse, pulse, pulse);
+
+        if (span > 0) {
+          // Bilateral Reticles: Both Right & Left targeting reticles rotate and pulse synchronously
+          reticleRight.group.visible = true;
+          reticleRight.group.position.set(-span, currentTarget.pos[1], currentTarget.pos[2]);
+          reticleRight.ring1.rotation.z = elapsedTime * 2;
+          reticleRight.ring2.rotation.z = -elapsedTime * 2.5;
+          reticleRight.group.scale.set(pulse, pulse, pulse);
+
+          reticleLeft.group.visible = true;
+          reticleLeft.group.position.set(span, currentTarget.pos[1], currentTarget.pos[2]);
+          reticleLeft.ring1.rotation.z = -elapsedTime * 2;
+          reticleLeft.ring2.rotation.z = elapsedTime * 2.5;
+          reticleLeft.group.scale.set(pulse, pulse, pulse);
+        } else {
+          // Midline (Cervical / Lumbar): Single centered reticle
+          reticleRight.group.visible = true;
+          reticleRight.group.position.set(0, currentTarget.pos[1], currentTarget.pos[2]);
+          reticleRight.ring1.rotation.z = elapsedTime * 2;
+          reticleRight.ring2.rotation.z = -elapsedTime * 2.5;
+          reticleRight.group.scale.set(pulse, pulse, pulse);
+
+          reticleLeft.group.visible = false;
+        }
       }
 
       currentCamPos.lerp(targetCamPos, 0.065);
