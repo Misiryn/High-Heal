@@ -290,6 +290,27 @@ function isBoneMatchingJoint(boneName: string, jointId: string): boolean {
   }
 }
 
+// Helper: Determine if an anatomical muscle matches the active joint
+function isMuscleMatchingJoint(muscleName: string, jointId: string): boolean {
+  const n = muscleName.toLowerCase();
+  switch (jointId) {
+    case 'lumbar':
+      return /multifidus|quadratus lumborum|latissimus|psoas|rectus abdominis|abdominal oblique|erector spinae/i.test(n);
+    case 'cervical':
+      return /trapezius|multifidus colli|sternocleido|splenius|levator scapulae|scalen/i.test(n);
+    case 'shoulder-r':
+      return /deltoid|supraspinatus|infraspinatus|subscapularis|teres|pectoralis|biceps brachii/i.test(n);
+    case 'hip-r':
+      return /gluteus|piriformis|tensor fasciae|iliacus|obturator internus|gemellus/i.test(n);
+    case 'knee-r':
+      return /rectus femoris|vastus|biceps femoris|semitendinosus|semimembranosus|popliteus/i.test(n);
+    case 'ankle-r':
+      return /tibialis|soleus|fibularis|gastrocnemius/i.test(n);
+    default:
+      return false;
+  }
+}
+
 export default function KineticModel3D() {
   const mountRef = useRef<HTMLDivElement>(null);
   const [modelMode, setModelMode] = useState<ModelMode>('athletic');
@@ -379,6 +400,40 @@ export default function KineticModel3D() {
       side: THREE.DoubleSide,
     });
 
+    // Authentic Anatomical Muscular Materials
+    const defaultMuscleMat = new THREE.MeshStandardMaterial({
+      color: 0x881337, // Deep anatomical myoglobin crimson
+      roughness: 0.55,
+      metalness: 0.08,
+      side: THREE.DoubleSide,
+    });
+
+    const defaultConnectiveMat = new THREE.MeshStandardMaterial({
+      color: 0xe2e8f0, // Fibrous fascia/bursae
+      roughness: 0.45,
+      metalness: 0.1,
+      side: THREE.DoubleSide,
+    });
+
+    const activeMuscleHighlightMat = new THREE.MeshStandardMaterial({
+      color: 0x0d9488, // Primary Teal
+      emissive: 0x14b8a6,
+      emissiveIntensity: 1.2,
+      roughness: 0.25,
+      metalness: 0.15,
+      side: THREE.DoubleSide,
+    });
+
+    // Athletic Biomechanical Mannequin Material (Solid Sleek Slate with Medical Teal Rim)
+    const athleticSilhouetteMat = new THREE.MeshStandardMaterial({
+      color: 0x1e293b, // Deep athletic slate
+      emissive: 0x0d9488, // Medical teal Fresnel rim glow
+      emissiveIntensity: 0.22,
+      roughness: 0.35,
+      metalness: 0.2,
+      side: THREE.DoubleSide,
+    });
+
     const defaultJointRingMat = new THREE.MeshBasicMaterial({
       color: 0x0d9488,
       transparent: true,
@@ -415,38 +470,27 @@ export default function KineticModel3D() {
     dracoLoader.setDecoderPath('/draco/');
     gltfLoader.setDRACOLoader(dracoLoader);
 
-    // =========================================================================
-    // BUILD 1: ATHLETIC BIOMECHANICAL MANNEQUIN
-    // =========================================================================
+    // Meshes and rings tracking for highlighting
     const athleticAccentRings: { id: string; mesh: THREE.Mesh }[] = [];
+    const skeletalMeshes: THREE.Mesh[] = [];
+    const muscularMeshes: { mesh: THREE.Mesh; isMuscle: boolean; name: string }[] = [];
+    const kineticTubes: { id: string; mesh: THREE.Mesh }[] = [];
 
+    // =========================================================================
+    // BUILD 1: ATHLETIC BIOMECHANICAL SHELL & KINETIC RINGS
+    // =========================================================================
     gltfLoader.load(
-      '/models/athletic-mannequin.glb',
+      '/models/human-surface.glb',
       (gltf) => {
         const model = gltf.scene;
         fitModelToFrame(model, 5.7, -2.9);
 
-        // Apply sleek high-performance sports medicine materials
         model.traverse((child) => {
           if ((child as THREE.Mesh).isMesh) {
             const mesh = child as THREE.Mesh;
+            mesh.material = athleticSilhouetteMat;
             mesh.castShadow = true;
             mesh.receiveShadow = true;
-            if (mesh.name === 'Beta_Joints') {
-              mesh.material = new THREE.MeshStandardMaterial({
-                color: 0x0d9488,
-                emissive: 0x0f766e,
-                emissiveIntensity: 0.6,
-                roughness: 0.25,
-                metalness: 0.7,
-              });
-            } else {
-              mesh.material = new THREE.MeshStandardMaterial({
-                color: 0x1e293b,
-                roughness: 0.35,
-                metalness: 0.85,
-              });
-            }
           }
         });
 
@@ -455,12 +499,12 @@ export default function KineticModel3D() {
       },
       undefined,
       (err) => {
-        console.warn('Athletic mannequin GLB fallback:', err);
+        console.warn('Athletic surface GLB fallback:', err);
         setIsLoading(false);
       }
     );
 
-    // Accent Articulation Rings for Athletic Model
+    // Accent Articulation Rings & Biomechanical Nodes for Athletic Model
     const addAthleticJointRing = (id: string, x: number, y: number, z: number, r: number) => {
       const ringGeo = new THREE.RingGeometry(r, r + 0.05, 32);
       const ring = new THREE.Mesh(ringGeo, defaultJointRingMat.clone());
@@ -471,24 +515,50 @@ export default function KineticModel3D() {
     };
 
     addAthleticJointRing('cervical', 0, 2.3, 0, 0.22);
-    addAthleticJointRing('shoulder-r', -1.2, 1.8, 0, 0.22);
+    addAthleticJointRing('shoulder-r', -1.15, 1.75, 0, 0.22);
+    addAthleticJointRing('shoulder-l', 1.15, 1.75, 0, 0.22);
     addAthleticJointRing('lumbar', 0, 0.4, 0, 0.38);
-    addAthleticJointRing('hip-r', -0.6, -0.2, 0, 0.24);
-    addAthleticJointRing('knee-r', -0.7, -1.5, 0.1, 0.22);
-    addAthleticJointRing('ankle-r', -0.7, -2.8, 0, 0.2);
+    addAthleticJointRing('hip-r', -0.55, -0.25, 0, 0.24);
+    addAthleticJointRing('hip-l', 0.55, -0.25, 0, 0.24);
+    addAthleticJointRing('knee-r', -0.65, -1.5, 0.05, 0.22);
+    addAthleticJointRing('knee-l', 0.65, -1.5, 0.05, 0.22);
+    addAthleticJointRing('ankle-r', -0.65, -2.75, 0, 0.2);
+    addAthleticJointRing('ankle-l', 0.65, -2.75, 0, 0.2);
+
+    // Kinetic Articulation Center Nodes on Athletic Model
+    const athleticJointNodeGeo = new THREE.SphereGeometry(0.065, 16, 16);
+    const athleticJointNodeMat = new THREE.MeshStandardMaterial({
+      color: 0x0d9488,
+      emissive: 0x14b8a6,
+      emissiveIntensity: 0.9,
+      roughness: 0.2,
+      metalness: 0.3,
+    });
+    const jointPositions = [
+      [0, 2.3, 0], // cervical
+      [-1.15, 1.75, 0], [1.15, 1.75, 0], // shoulders
+      [-1.35, 0.9, -0.05], [1.35, 0.9, -0.05], // elbows
+      [-1.4, 0.05, 0], [1.4, 0.05, 0], // wrists
+      [0, 0.4, 0], // lumbar
+      [-0.55, -0.25, 0], [0.55, -0.25, 0], // hips
+      [-0.65, -1.5, 0.05], [0.65, -1.5, 0.05], // knees
+      [-0.65, -2.75, 0], [0.65, -2.75, 0], // ankles
+    ];
+    jointPositions.forEach(([jx, jy, jz]) => {
+      const nodeMesh = new THREE.Mesh(athleticJointNodeGeo, athleticJointNodeMat);
+      nodeMesh.position.set(jx, jy, jz);
+      athleticGroup.add(nodeMesh);
+    });
 
     // =========================================================================
-    // BUILD 2: SKELETAL ANATOMY (FULL BILATERAL SKELETON)
+    // BUILD 2: SKELETAL ANATOMY (FULL BILATERAL MEDICAL SKELETON)
     // =========================================================================
-    const skeletalMeshes: THREE.Mesh[] = [];
-
     gltfLoader.load(
       '/models/skeletal-anatomy.glb',
       (gltf) => {
         const model = gltf.scene;
 
-        // FIX: The original model from AnatomyTOOL only contains the right half.
-        // Mirror Bones_right and Cartilages_right across X=0 to create the complete bilateral skeleton!
+        // Mirror Bones_right and Cartilages_right across X=0 for bilateral symmetry
         const bonesRight = model.getObjectByName('Bones_right');
         if (bonesRight) {
           const bonesLeft = bonesRight.clone(true);
@@ -505,10 +575,9 @@ export default function KineticModel3D() {
           model.add(cartLeft);
         }
 
-        // Fit complete bilateral skeleton to exact human frame height
         fitModelToFrame(model, 5.7, -2.9);
 
-        // Collect all meshes for dynamic glow highlighting
+        // Populate Skeletal Anatomy Tab
         model.traverse((child) => {
           if ((child as THREE.Mesh).isMesh) {
             const mesh = child as THREE.Mesh;
@@ -518,36 +587,42 @@ export default function KineticModel3D() {
             skeletalMeshes.push(mesh);
           }
         });
-
         skeletalGroup.add(model);
       },
       undefined,
       (err) => {
-        console.warn('Skeletal GLB fallback:', err);
+        console.warn('Skeletal GLB load error:', err);
       }
     );
 
     // =========================================================================
-    // BUILD 3: MUSCULAR KINETIC CHAIN
+    // BUILD 3: MUSCULAR ANATOMY (AUTHENTIC 440-MUSCLE ANATOMICAL SYSTEM)
     // =========================================================================
-    const kineticTubes: { id: string; mesh: THREE.Mesh }[] = [];
-
     gltfLoader.load(
-      '/models/athletic-mannequin.glb',
+      '/models/body.glb',
       (gltf) => {
         const model = gltf.scene;
         fitModelToFrame(model, 5.7, -2.9);
 
-        // Striated Myofascial Red Muscle Tone
         model.traverse((child) => {
           if ((child as THREE.Mesh).isMesh) {
-            (child as THREE.Mesh).material = new THREE.MeshStandardMaterial({
-              color: 0x9f1239,
-              emissive: 0x4c0519,
-              emissiveIntensity: 0.35,
-              roughness: 0.45,
-              metalness: 0.1,
-            });
+            const mesh = child as THREE.Mesh;
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+
+            const isMuscle = child.userData?.type === 'muscle' || /muscle|rectus|oblique|deltoid|trapezius|gluteus|vastus|biceps|triceps|pectoralis|multifidus|psoas|gastrocnemius|soleus|tibialis/i.test(mesh.name);
+            const isBone = child.userData?.type === 'bone' || /bone|spine|vertebra|femur|tibia|fibula|scapula|clavicle|pelvis|humerus|radius|ulna/i.test(mesh.name);
+
+            if (isMuscle) {
+              mesh.material = defaultMuscleMat;
+              muscularMeshes.push({ mesh, isMuscle: true, name: mesh.name });
+            } else if (isBone) {
+              mesh.material = defaultBoneMat;
+              muscularMeshes.push({ mesh, isMuscle: false, name: mesh.name });
+            } else {
+              mesh.material = defaultConnectiveMat;
+              muscularMeshes.push({ mesh, isMuscle: false, name: mesh.name });
+            }
           }
         });
 
@@ -555,7 +630,7 @@ export default function KineticModel3D() {
       },
       undefined,
       (err) => {
-        console.warn('Muscular GLB fallback:', err);
+        console.warn('Muscular GLB load error:', err);
       }
     );
 
@@ -815,14 +890,16 @@ export default function KineticModel3D() {
       // =======================================================================
       const slowPulse = 0.5 + 0.5 * Math.sin(elapsedTime * 2.8);
       activeBoneHighlightMat.emissiveIntensity = 0.5 + 1.4 * slowPulse;
+      activeMuscleHighlightMat.emissiveIntensity = 0.5 + 1.4 * slowPulse;
 
       const currentTarget = activeJointRef.current;
       const currentJointId = currentTarget.id;
 
-      // Update highlighted skeletal bones whenever selected joint changes
-      if (lastHighlightedJointId !== currentJointId && skeletalMeshes.length > 0) {
+      // Update highlighted meshes whenever selected joint changes
+      if (lastHighlightedJointId !== currentJointId) {
         lastHighlightedJointId = currentJointId;
 
+        // 1. Skeletal Tab Meshes
         skeletalMeshes.forEach((mesh) => {
           if (currentJointId === 'overview') {
             mesh.material = defaultBoneMat;
@@ -832,6 +909,20 @@ export default function KineticModel3D() {
             mesh.material = defaultBoneMat;
           }
         });
+
+        // 2. Muscular Tab Meshes (Authentic 440 Muscles)
+        muscularMeshes.forEach(({ mesh, isMuscle, name }) => {
+          if (currentJointId === 'overview') {
+            mesh.material = isMuscle ? defaultMuscleMat : defaultBoneMat;
+          } else if (isMuscle && isMuscleMatchingJoint(name, currentJointId)) {
+            mesh.material = activeMuscleHighlightMat;
+          } else if (isMuscle) {
+            mesh.material = defaultMuscleMat;
+          } else {
+            mesh.material = defaultBoneMat;
+          }
+        });
+
       }
 
       // Athletic mode accent rings pulsing
